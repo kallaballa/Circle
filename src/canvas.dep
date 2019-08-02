@@ -1,0 +1,1 @@
+canvas.o: canvas.cpp canvas.hpp save_surf.hpp

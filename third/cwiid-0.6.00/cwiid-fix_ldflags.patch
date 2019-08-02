@@ -1,0 +1,44 @@
+--- lswm/Makefile.in.orig	2010-07-30 22:19:22.000000000 +0200
++++ lswm/Makefile.in	2010-07-30 22:19:51.000000000 +0200
+@@ -8,7 +8,7 @@
+ 
+ CFLAGS += -I@top_builddir@/libcwiid
+ LDFLAGS += -L@top_builddir@/libcwiid
+-LDLIBS += -lcwiid
++LDLIBS += -lcwiid -ldl -lbluetooth -lpthread -lrt
+ INST_DIR = @bindir@
+ 
+ include $(COMMON)/include/app.mak
+--- wmgui/Makefile.in.orig	2007-07-28 20:47:03.000000000 +0200
++++ wmgui/Makefile.in	2010-07-30 22:19:15.000000000 +0200
+@@ -8,7 +8,7 @@
+ 
+ CFLAGS += @GTK_CFLAGS@ -I@top_builddir@/libcwiid
+ LDFLAGS += -L@top_builddir@/libcwiid
+-LDLIBS += @GTK_LIBS@ -lm -lcwiid
++LDLIBS += @GTK_LIBS@ -lm -lcwiid -lbluetooth -lpthread -lrt
+ INST_DIR = @bindir@
+ 
+ include $(COMMON)/include/app.mak
+--- wminput/Makefile.in.orig	2007-07-28 20:47:03.000000000 +0200
++++ wminput/Makefile.in	2010-07-30 22:19:15.000000000 +0200
+@@ -14,7 +14,7 @@
+ 	-DWMINPUT_CONFIG_DIR=\"$(WMINPUT_CONFIG_DIR)\" \
+ 	-DCWIID_PLUGINS_DIR=\"$(CWIID_PLUGINS_DIR)\"
+ 
+-LDLIBS += -lcwiid -ldl
++LDLIBS += -lcwiid -ldl -lbluetooth -lpthread -lrt
+ LDFLAGS += -L@top_builddir@/libcwiid -rdynamic
+ INST_DIR = @bindir@
+ 
+--- wmdemo/Makefile.in.orig	2010-07-30 22:20:44.000000000 +0200
++++ wmdemo/Makefile.in	2010-07-30 22:21:06.000000000 +0200
+@@ -8,7 +8,7 @@
+ 
+ CFLAGS += -I@top_builddir@/libcwiid
+ LDFLAGS += -L@top_builddir@/libcwiid
+-LDLIBS += -lcwiid
++LDLIBS += -lcwiid -ldl -lbluetooth -lpthread -lrt
+ INST_DIR = @bindir@
+ 
+ include $(COMMON)/include/app.mak

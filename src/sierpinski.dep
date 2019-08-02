@@ -1,0 +1,4 @@
+sierpinski.o: sierpinski.cpp ../third/history/NLCommand.h \
+ ../third/history/NLCommandGroup.h ../third/history/NLHistory.h \
+ canvas.hpp button.hpp average.hpp trans.hpp aplay/aplay.h \
+ aplay/formats.h
