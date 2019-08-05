@@ -253,20 +253,23 @@ int main() {
       midiin->getMessage( &message );
 
       nBytes = message.size();
+    	std::cerr << "message size: " << message.size() << std::endl;
 
-      if(nBytes == 9) {
+      if(nBytes == 10) {
+      	int ctrlNr = message[1];
+      	std::cerr << "ctrl: " << ctrlNr << std::endl;
         string button;
-        double roll = avgRoll.smooth(message[1]);
-        double pitch = avgPitch.smooth(message[2]);
-        double x_a = avgAccX.smooth(message[3]);
-        double y_a = avgAccY.smooth(message[4]);
-        double z_a = avgAccZ.smooth(message[5]);
+        double roll = avgRoll.smooth(message[2]);
+        double pitch = avgPitch.smooth(message[3]);
+        double x_a = avgAccX.smooth(message[4]);
+        double y_a = avgAccY.smooth(message[5]);
+        double z_a = avgAccZ.smooth(message[6]);
 //        double roll = message[1];
 //        double pitch = message[2];
 //        double x_a = message[3];
 //        double y_a = message[4];
 //        double z_a = message[5];
-        uint16_t buttons = (((uint16_t) message[6])) | ((uint16_t) message[7] << 8);
+        uint16_t buttons = (((uint16_t) message[7])) | ((uint16_t) message[8] << 8);
 
 
         btn_up.update(buttons & MASK_BTN_UP);
@@ -357,7 +360,6 @@ int main() {
           TRANS_MATS.set(TransMatrices::Zoom,1,1,zoom * 0.1);
         }
       }
-
       std::this_thread::yield();
       usleep( 10000 );
     }
