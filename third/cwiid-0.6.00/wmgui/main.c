@@ -214,17 +214,22 @@ void err(int id, const char *s, ...)
 
 int main (int argc, char *argv[])
 {
+	int port = atoi(argv[1]);
+	int ctrlNr = atoi(argv[2]);
   std::thread sendThread([&](){
     while(true) {
+    	if(wiimote == NULL)
+    		continue;
       msg[0] = 0xf0;
-      msg[1] = (roll + 2.5) / (2.5) * 127 * 1.4 - 1;
-      msg[2] = ((pitch + 0.9) / (0.9) * 127) / 2 - 1;
-      msg[3] = accX / 2;
-      msg[4] = accY / 2;
-      msg[5] = accZ / 2;
-      msg[6] = (uint8_t) (buttons & 0x00ff);
-      msg[7] = (uint8_t) ((buttons & 0xff00) >> 8);
-      msg[8] = 0xf7;
+      msg[1] = ctrlNr;
+      msg[2] = (roll + 2.5) / (2.5) * 127 * 1.4 - 1;
+      msg[3] = ((pitch + 0.9) / (0.9) * 127) / 2 - 1;
+      msg[4] = accX / 2;
+      msg[5] = accY / 2;
+      msg[6] = accZ / 2;
+      msg[7] = (uint8_t) (buttons & 0x00ff);
+      msg[8] = (uint8_t) ((buttons & 0xff00) >> 8);
+      msg[9] = 0xf7;
       for(size_t i = 1; i < 8; ++i) {
         if(msg[i] > 127)
           msg[i] = 127;
@@ -243,7 +248,7 @@ int main (int argc, char *argv[])
   });
 	int c;
 	char *str_addr;
-  midiout->openPort( 0 );
+  midiout->openPort( port );
 	gtk_set_locale ();
 	gtk_init (&argc, &argv);
 
@@ -255,44 +260,44 @@ int main (int argc, char *argv[])
 
 	/* cwiid_set_err(err); */
 
-	/* Parse Options */
-	while ((c = getopt(argc, argv, OPTSTRING)) != -1) {
-		switch (c) {
-		case 'h':
-			printf(USAGE, argv[0]);
-			return 0;
-			break;
-		case '?':
-			return -1;
-			break;
-		default:
-			printf("unknown command-line option: -%c\n", c);
-			break;
-		}
-	}
-
-	/* BDADDR */
-	if (optind < argc) {
-		if (str2ba(argv[optind], &bdaddr)) {
-			printf("invalid bdaddr\n");
-			bdaddr = *BDADDR_ANY;
-		}
-		optind++;
-		if (optind < argc) {
-			printf("invalid command-line\n");
-			printf(USAGE, argv[0]);
-			return -1;
-		}
-	}
-	else if ((str_addr = getenv(WIIMOTE_BDADDR)) != NULL) {
-		if (str2ba(str_addr, &bdaddr)) {
-			printf("invalid address in %s\n", WIIMOTE_BDADDR);
-			bdaddr = *BDADDR_ANY;
-		}
-	}
-	else {
-		bdaddr = *BDADDR_ANY;
-	}		
+//	/* Parse Options */
+//	while ((c = getopt(argc, argv, OPTSTRING)) != -1) {
+//		switch (c) {
+//		case 'h':
+//			printf(USAGE, argv[0]);
+//			return 0;
+//			break;
+//		case '?':
+//			return -1;
+//			break;
+//		default:
+//			printf("unknown command-line option: -%c\n", c);
+//			break;
+//		}
+//	}
+//
+//	/* BDADDR */
+//	if (optind < argc) {
+//		if (str2ba(argv[optind], &bdaddr)) {
+//			printf("invalid bdaddr\n");
+//			bdaddr = *BDADDR_ANY;
+//		}
+//		optind++;
+//		if (optind < argc) {
+//			printf("invalid command-line\n");
+//			printf(USAGE, argv[0]);
+//			return -1;
+//		}
+//	}
+//	else if ((str_addr = getenv(WIIMOTE_BDADDR)) != NULL) {
+//		if (str2ba(str_addr, &bdaddr)) {
+//			printf("invalid address in %s\n", WIIMOTE_BDADDR);
+//			bdaddr = *BDADDR_ANY;
+//		}
+//	}
+//	else {
+//		bdaddr = *BDADDR_ANY;
+//	}
 
 	/* Create the window */
 	winMain = create_winMain();

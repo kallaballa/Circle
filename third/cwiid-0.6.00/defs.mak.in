@@ -16,7 +16,7 @@ datarootdir = @datarootdir@
 mandir = @mandir@
 docdir = @docdir@
 
-CC = @CC@
+CC = g++
 AWK = @AWK@
 LEX = @LEX@
 YACC = @YACC@
@@ -33,4 +33,4 @@ CWIID_PLUGINS_DIR = $(ROOTDIR)@CWIID_PLUGINS_DIR@
 
 DEBUGFLAGS = -g
 WARNFLAGS = -Wall -W
-CFLAGS = $(DEBUGFLAGS) $(WARNFLAGS) @DEFS@ -I$(COMMON)/include
+CFLAGS = $(DEBUGFLAGS) $(WARNFLAGS) @DEFS@ -I$(COMMON)/include -fpermissive

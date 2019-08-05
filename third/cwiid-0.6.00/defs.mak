@@ -22,7 +22,7 @@ LEX = flex
 YACC = bison -y
 PYTHON = python
 
-COMMON = /home/elchaschab/devel/Sierpinski/third/cwiid-0.6.00/common
+COMMON = /home/elchaschab/devel/Circle/third/cwiid-0.6.00/common
 
 ifdef DESTDIR
 	ROOTDIR = $(DESTDIR:%/=%)
@@ -34,4 +34,3 @@ CWIID_PLUGINS_DIR = $(ROOTDIR)${libdir}/cwiid/plugins
 DEBUGFLAGS = -g
 WARNFLAGS = -Wall -W
 CFLAGS = $(DEBUGFLAGS) $(WARNFLAGS) -DHAVE_CONFIG_H -I$(COMMON)/include -fpermissive
-LDFLABS=-lrtmidi
