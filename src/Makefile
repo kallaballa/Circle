@@ -1,6 +1,6 @@
 TARGET := sierpinski
 
-SRCS    := sierpinski.cpp canvas.cpp save_surf.cpp ../third/history/NLHistory.cpp ../third/history/NLCommandGroup.cpp
+SRCS    := sierpinski.cpp canvas.cpp save_surf.cpp ../third/history/NLHistory.cpp ../third/history/NLCommandGroup.cpp color.cpp
 
 #precompiled headers
 HEADERS := 
@@ -17,6 +17,7 @@ debug: ${TARGET}
 info: ${TARGET}
 profile: ${TARGET}
 hardcore: ${TARGET}
+asan: ${TARGET}
 
 ${TARGET}: ${OBJS}
 	${CXX} ${LDFLAGS} -o $@ $^ ${LIBS}

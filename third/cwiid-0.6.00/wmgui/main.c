@@ -148,7 +148,7 @@ GtkTextBuffer *tbRW;
 
 GdkColor btn_on, btn_off;
 RtMidiOut *midiout = new RtMidiOut();
-std::vector<unsigned char> msg(9);
+std::vector<unsigned char> msg(10);
 double a_x, a_y, a_z, a;
 uint8_t accX, accY, accZ;
 double roll, pitch;
@@ -214,8 +214,7 @@ void err(int id, const char *s, ...)
 
 int main (int argc, char *argv[])
 {
-	int port = atoi(argv[1]);
-	int ctrlNr = atoi(argv[2]);
+	int ctrlNr = atoi(argv[1]);
   std::thread sendThread([&](){
     while(true) {
     	if(wiimote == NULL)
@@ -230,7 +229,7 @@ int main (int argc, char *argv[])
       msg[7] = (uint8_t) (buttons & 0x00ff);
       msg[8] = (uint8_t) ((buttons & 0xff00) >> 8);
       msg[9] = 0xf7;
-      for(size_t i = 1; i < 8; ++i) {
+      for(size_t i = 1; i < 9; ++i) {
         if(msg[i] > 127)
           msg[i] = 127;
       }
@@ -248,7 +247,7 @@ int main (int argc, char *argv[])
   });
 	int c;
 	char *str_addr;
-  midiout->openPort( port );
+  midiout->openPort( 0 );
 	gtk_set_locale ();
 	gtk_init (&argc, &argv);
 
@@ -259,7 +258,7 @@ int main (int argc, char *argv[])
 	gdk_threads_enter();
 
 	/* cwiid_set_err(err); */
-
+//
 //	/* Parse Options */
 //	while ((c = getopt(argc, argv, OPTSTRING)) != -1) {
 //		switch (c) {

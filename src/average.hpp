@@ -16,6 +16,10 @@ private:
   int readIndex_ = 0;
   double total_ = 0;
 public:
+  double val() {
+  	return total_ / NUM_READINGS;
+  }
+
   double smooth(double v) {
     total_ = total_ - readings_[readIndex_];
     readings_[readIndex_] = v;

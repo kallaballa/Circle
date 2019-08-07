@@ -14,9 +14,9 @@ Canvas::Canvas(size_t screenWidth, size_t screenHeight, bool offscreen) :
     atexit(SDL_Quit);
 
     if(!offscreen)
-      screen = SDL_SetVideoMode(screenWidth, screenHeight, 24,0);
+      screen = SDL_SetVideoMode(screenWidth, screenHeight, 32,0);
     else
-      screen = SDL_CreateRGBSurface(SDL_SWSURFACE, screenWidth, screenHeight, 24, 0, 0, 0, 0);
+      screen = SDL_CreateRGBSurface(SDL_SWSURFACE, screenWidth, screenHeight, 32, 0, 0, 0, 0);
 
     if (screen == NULL) {
       printf("Can't set video mode: %s\n", SDL_GetError());

@@ -1,8 +1,8 @@
-CXX      := g++-5
-CXXFLAGS :=  -pthread -fno-strict-aliasing -std=c++1y -pedantic -Wall `pkg-config --cflags cairo x11 opencv`
+CXX      := g++
+CXXFLAGS :=  -pthread -fno-strict-aliasing -std=c++1y -pedantic -Wall `pkg-config --cflags cairo x11 opencv sdl SDL_gfx SDL_image`
 LDFLAGS  := -L/opt/local/lib
 LIBS     := -lm `pkg-config --libs x11 opencv sdl SDL_gfx SDL_image libpng16 alsa rtmidi` -lboost_serialization
-.PHONY: all release debian-release info debug clean debian-clean distclean 
+.PHONY: all release debian-release info debug asan clean debian-clean distclean 
 DESTDIR := /
 PREFIX := /usr/local
 MACHINE := $(shell uname -m)
@@ -66,6 +66,11 @@ ifeq ($(UNAME_S), Darwin)
 hardcore: LDFLAGS += -s
 endif
 hardcore: dirs
+
+asan: CXXFLAGS += -g3 -O0 -rdynamic -fno-omit-frame-pointer -fsanitize=address
+asan: LDFLAGS += -Wl,--export-dynamic -fsanitize=address
+asan: LIBS+= -lbfd -ldw
+asan: dirs
 
 clean: dirs
 
