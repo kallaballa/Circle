@@ -86,15 +86,15 @@ void extractROI(const cv::Mat& texture, cv::Mat& view) {
 	else if(VIEWPORT.y_ < 0)
 		VIEWPORT.y_ = texture.rows - VIEWPORT.y_;
 
-	size_t vx = VIEWPORT.x_;
-	size_t vy = VIEWPORT.y_;
+	off64_t vx = VIEWPORT.x_;
+	off64_t vy = VIEWPORT.y_;
 
 	vpMutex.unlock();
 
-	for(size_t c = 0; c < WIDTH; ++c) {
-		for(size_t r = 0; r < HEIGHT; ++r) {
-			size_t x = vx + c;
-			size_t y = vy + r;
+	for(off64_t c = 0; c < WIDTH; ++c) {
+		for(off64_t r = 0; r < HEIGHT; ++r) {
+			off64_t x = vx + c;
+			off64_t y = vy + r;
 			if(x >= texture.cols) {
 				x %= texture.cols;
 			} else if(x < 0) {
@@ -105,10 +105,10 @@ void extractROI(const cv::Mat& texture, cv::Mat& view) {
 			} else if(y < 0) {
 				y = texture.rows - y;
 			}
-			for(size_t vc = 0; vc < WIDTH; ++vc) {
-				for(size_t vr = 0; vr < HEIGHT; ++vr) {
-					size_t px = x + vc;
-					size_t py = y + vr;
+			for(off64_t vc = 0; vc < WIDTH; ++vc) {
+				for(off64_t vr = 0; vr < HEIGHT; ++vr) {
+					off64_t px = x + vc;
+					off64_t py = y + vr;
 
 					if (px >= texture.cols) {
 						px %= texture.cols;
@@ -267,13 +267,17 @@ int main(int argc, char** argv) {
 	std::thread slideThread([&]() {
 		while(true) {
 			vpMutex.lock();
-			VIEWPORT.x_++;
-			VIEWPORT.y_++;
+			VIEWPORT.x_--;
+			VIEWPORT.y_--;
 			if(VIEWPORT.x_ >= texture.cols) {
 				VIEWPORT.x_ = VIEWPORT.x_ % texture.cols;
+			} else if(VIEWPORT.x_ < 0) {
+				VIEWPORT.x_ = texture.cols + VIEWPORT.x_;
 			}
 			if(VIEWPORT.y_ >= texture.rows) {
 				VIEWPORT.y_ = VIEWPORT.y_ % texture.rows;
+			} else if(VIEWPORT.y_ < 0) {
+				VIEWPORT.y_ = texture.rows + VIEWPORT.y_;
 			}
 			vpMutex.unlock();
 			std::this_thread::yield();
