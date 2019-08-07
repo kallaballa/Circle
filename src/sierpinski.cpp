@@ -30,8 +30,10 @@ constexpr size_t HEIGHT = 10;
 
 std::mutex vpMutex;
 struct ViewPort {
-	size_t x_ = 0;
-	size_t y_ = 0;
+	off64_t x_ = 0;
+	off64_t y_ = 0;
+	double speedX_ = 0;
+	double speedY_ = 0;
 };
 
 ViewPort VIEWPORT;
@@ -72,19 +74,29 @@ struct WMEvent {
 WMEvent event;
 HSLColor hsl = { 0, 50, 50};
 
+void blend(const cv::Mat& src1, const cv::Mat& src2, const double alpha, const cv::Mat& dst)
+{
+	using namespace cv;
+   double beta; double input;
+
+   beta = ( 1.0 - alpha );
+   addWeighted( src1, alpha, src2, beta, 0.0, dst);
+}
+
 void extractROI(const cv::Mat& texture, cv::Mat& view) {
 	//FIXME ############### off_t instead of size_t for coordinates; ################
 
 	vpMutex.lock();
+
 	if(VIEWPORT.x_ >= texture.cols)
 		VIEWPORT.x_ %= texture.cols;
 	else if(VIEWPORT.x_ < 0)
-		VIEWPORT.x_ = texture.cols - VIEWPORT.x_;
+		VIEWPORT.x_ = texture.cols + VIEWPORT.x_;
 
 	if(VIEWPORT.y_ >= texture.rows)
 		VIEWPORT.y_ %= texture.rows;
 	else if(VIEWPORT.y_ < 0)
-		VIEWPORT.y_ = texture.rows - VIEWPORT.y_;
+		VIEWPORT.y_ = texture.rows + VIEWPORT.y_;
 
 	off64_t vx = VIEWPORT.x_;
 	off64_t vy = VIEWPORT.y_;
@@ -98,13 +110,14 @@ void extractROI(const cv::Mat& texture, cv::Mat& view) {
 			if(x >= texture.cols) {
 				x %= texture.cols;
 			} else if(x < 0) {
-				x = texture.cols - x;
+				x = texture.cols + x;
 			}
 			if(y >= texture.rows){
 				y %= texture.rows;
 			} else if(y < 0) {
-				y = texture.rows - y;
+				y = texture.rows + y;
 			}
+
 			for(off64_t vc = 0; vc < WIDTH; ++vc) {
 				for(off64_t vr = 0; vr < HEIGHT; ++vr) {
 					off64_t px = x + vc;
@@ -113,14 +126,14 @@ void extractROI(const cv::Mat& texture, cv::Mat& view) {
 					if (px >= texture.cols) {
 						px %= texture.cols;
 					} else if (px < 0) {
-						px = texture.cols - px;
+						px = texture.cols + px;
 					}
 					if(py >= texture.rows) {
 						py %= texture.rows;
 					}	else if(py < 0) {
-						py = texture.rows - py;
+						py = texture.rows + py;
 					}
-//					std::cerr << vx << '/' << vy << '\t' << px << '/' << py << std::endl;
+//					std::cerr << vr << '/' << vc << '\t' << px << '/' << py << std::endl;
 //					std::cerr << view.cols << '/' << view.rows << '\t' << texture.cols << '/' << texture.rows << std::endl;
 
 //					std::cerr << view.type() << "==" << texture.type() << std::endl;
@@ -237,12 +250,16 @@ int main(int argc, char** argv) {
       if(nBytes == 10) {
       	eventMutex.lock();
       	event.ctrlNr_ = message[1];
-      	event.roll_ = avgRoll.smooth(message[2]);
-      	event.pitch_ = avgPitch.smooth(message[3]);
-      	event.x_a_ = avgAccX.smooth(message[4]);
-      	event.y_a_ = avgAccY.smooth(message[5]);
-      	event.z_a_ = avgAccZ.smooth(message[6]);
-
+//      	event.roll_ = avgRoll.smooth(message[2]);
+//      	event.pitch_ = avgPitch.smooth(message[3]);
+//      	event.x_a_ = avgAccX.smooth(message[4]);
+//      	event.y_a_ = avgAccY.smooth(message[5]);
+//      	event.z_a_ = avgAccZ.smooth(message[6]);
+      	event.roll_ = message[2];
+      	event.pitch_ = message[3];
+      	event.x_a_ = message[4];
+      	event.y_a_ = message[5];
+      	event.z_a_ = message[6];
         uint16_t buttons = (((uint16_t) message[7])) | ((uint16_t) message[8] << 8);
 
         event.btn_up_.update(buttons & MASK_BTN_UP);
@@ -266,9 +283,26 @@ int main(int argc, char** argv) {
 
 	std::thread slideThread([&]() {
 		while(true) {
+			eventMutex.lock();
+			off_t xa = (event.roll_ - 64);
+			off_t ya = (event.pitch_ - 64) * -1;
+			std::cerr << "ya:" <<  ya << std::endl;
+
+			eventMutex.unlock();
 			vpMutex.lock();
-			VIEWPORT.x_--;
-			VIEWPORT.y_--;
+
+				VIEWPORT.speedX_ += xa;
+
+				VIEWPORT.speedY_ += ya;
+
+			if(std::abs(VIEWPORT.speedX_) / 20 < 0.01)
+				VIEWPORT.speedX_ = 0;
+			if(std::abs(VIEWPORT.speedY_) / 50 < 0.01)
+				VIEWPORT.speedY_ = 0;
+
+			VIEWPORT.x_ += ceil(VIEWPORT.speedX_ / 20);
+			VIEWPORT.y_ += ceil(VIEWPORT.speedY_ / 50);
+
 			if(VIEWPORT.x_ >= texture.cols) {
 				VIEWPORT.x_ = VIEWPORT.x_ % texture.cols;
 			} else if(VIEWPORT.x_ < 0) {
@@ -279,6 +313,8 @@ int main(int argc, char** argv) {
 			} else if(VIEWPORT.y_ < 0) {
 				VIEWPORT.y_ = texture.rows + VIEWPORT.y_;
 			}
+			VIEWPORT.speedX_ /= 2;
+			VIEWPORT.speedY_ /= 2;
 			vpMutex.unlock();
 			std::this_thread::yield();
 			usleep(40000);
@@ -287,6 +323,8 @@ int main(int argc, char** argv) {
 
   SDL_Event event;
   cv::Mat* view = new cv::Mat(HEIGHT, WIDTH, CV_8UC4);
+  cv::Mat* last = new cv::Mat(HEIGHT, WIDTH, CV_8UC4);
+  cv::Mat *dst = new cv::Mat(HEIGHT, WIDTH, CV_8UC4);
   while(!done) {
     if(SDL_PollEvent(&event)) {
       if(event.type == SDL_QUIT) {
@@ -294,10 +332,17 @@ int main(int argc, char** argv) {
       }
     }
     extractROI(texture, *view);
-
+    if(!last->empty()) {
+    	for(size_t i = 1; i < 4; ++i) {
+    		blend(*last, *view, 1.0/i, *dst);
+        draw(canvas, *dst);
+        usleep(10000);
+    	}
+    }
     draw(canvas, *view);
+    view->copyTo(*last);
     std::this_thread::yield();
-    usleep(40000);
+    usleep(10000);
   }
 
   return 0;
