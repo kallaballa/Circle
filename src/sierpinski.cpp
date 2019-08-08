@@ -328,6 +328,7 @@ int main(int argc, char** argv) {
 			VIEWPORT.lightness_ += ya;
 			VIEWPORT.saturation_ += za;
 
+			std::cerr << VIEWPORT.hue_ << '\t' << VIEWPORT.lightness_ << '\t' << VIEWPORT.saturation_ << std::endl;
 			TEXTURE_MTX.lock();
 			if(VIEWPORT.x_ >= TEXTURES[TEXTURE_IDX].cols) {
 				VIEWPORT.x_ = VIEWPORT.x_ % TEXTURES[TEXTURE_IDX].cols;
