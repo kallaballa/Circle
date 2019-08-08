@@ -71,8 +71,6 @@ struct WMEvent {
 };
 
 WMEvent EVENT;
-HSLColor hsl = { 0, 50, 50};
-
 std::mutex TEXTURE_MTX;
 std::vector<cv::Mat> TEXTURES;
 off_t TEXTURE_IDX = 0;
@@ -164,26 +162,6 @@ void extractROI(const cv::Mat& texture, cv::Mat& view) {
 			p = after.val();
 		}
 	}
-}
-
-void colorAt(cv::Mat& m, int x, int y )
-{
-	EVENT_MUTEX.lock();
-	hsl.h_ = x * 2 + EVENT.xa_;
-	hsl.s_ = (150 - EVENT.ya_);
-//	hsl.adjustLightness((50 - z_a) / 10);
-	EVENT_MUTEX.unlock();
-
-	RGBColor rgb(hsl);
-  m.at<int32_t>(y,x) = rgb.val();
-}
-
-void make_rainbow(cv::Mat& m) {
-  for (off_t i = 0; i < m.rows; i++) {
-    for (off_t j = 0; j < m.cols; j++) {
-    	colorAt(m, j, i);
-    }
-  }
 }
 
 void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
