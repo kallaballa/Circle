@@ -7,7 +7,6 @@
 #include <csignal>
 #include <chrono>
 #include <opencv2/opencv.hpp>
-#include <rtmidi/RtMidi.h>
 #include "../lib/canvas.hpp"
 #include "../lib/button.hpp"
 #include "../lib/color.hpp"
