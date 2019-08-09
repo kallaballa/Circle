@@ -341,7 +341,7 @@ int main(int argc, char** argv) {
 						if(TEXTURE_IDX >= TEXTURES.size())
 						TEXTURE_IDX = 0;
 						else if(TEXTURE_IDX < 0)
-						TEXTURE_IDX = TEXTURES.size() - 1;
+						TEXTURE_IDX = TEXTURES.size() - 2;
 
 						EVENT_MUTEX.unlock();
 					}
