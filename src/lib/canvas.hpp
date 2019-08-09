@@ -20,6 +20,7 @@ public:
   SDL_Surface* getSurface() {
     return screen;
   }
+  void putpixel(int x, int y, Uint32 pixel);
 private:
   class SDL_Surface *screen;
 

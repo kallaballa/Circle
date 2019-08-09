@@ -1,6 +1,6 @@
-TARGET := sierpinski
+TARGET := slide
 
-SRCS    := sierpinski.cpp canvas.cpp save_surf.cpp ../third/history/NLHistory.cpp ../third/history/NLCommandGroup.cpp color.cpp
+SRCS    := slide.cpp ../lib/canvas.cpp ../lib/save_surf.cpp ../lib/color.cpp ../lib/midi.cpp
 
 #precompiled headers
 HEADERS := 
