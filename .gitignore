@@ -72,4 +72,19 @@ third/history/NLCommandGroup.dep
 third/history/NLCommandGroup.o
 third/history/NLHistory.dep
 third/history/NLHistory.o
+src/lib/canvas.dep
+src/lib/canvas.o
+src/lib/color.dep
+src/lib/color.o
+src/lib/midi.dep
+src/lib/midi.o
+src/lib/save_surf.dep
+src/lib/save_surf.o
+src/slide/slide
+src/slide/slide.dep
+src/slide/slide.o
+src/lib/button.dep
+src/lib/button.o
+src/lib/midiwiimote.dep
+src/lib/midiwiimote.o
 
