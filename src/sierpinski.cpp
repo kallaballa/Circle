@@ -167,13 +167,12 @@ void extractROI(const cv::Mat& texture, cv::Mat& view) {
 			before.r_ += h * 2;
 			before.g_ += s * 2;
 			before.b_ += l * 2;
-			if(before.r_ > 255)
+			if (before.r_ > 255)
 				before.r_ = 255;
-			if(before.g_ > 255)
+			if (before.g_ > 255)
 				before.g_ = 255;
-			if(before.b_ > 255)
+			if (before.b_ > 255)
 				before.b_ = 255;
-
 
 			//			HSLColor hsl(before);
 ////			hsl.adjustHue(h);
@@ -248,12 +247,11 @@ private:
 	std::vector<Mix_Chunk*> chunks;
 public:
 	Sound() {
-	  //Initialize SDL_mixer
-	  if( Mix_OpenAudio( 44100, AUDIO_U8, 1, 512 ) == -1 )
-	  {
-	  	std::cerr << "Error opening audio device" << std::endl;
-	      throw std::exception();
-	  }
+		//Initialize SDL_mixer
+		if (Mix_OpenAudio(44100, AUDIO_U8, 1, 512) == -1) {
+			std::cerr << "Error opening audio device" << std::endl;
+			throw std::exception();
+		}
 	}
 
 	~Sound() {
@@ -266,11 +264,11 @@ public:
 
 	//Loads the wav file and returns it's index
 	size_t load(const string& filename) {
-	  Mix_Chunk* effect = Mix_LoadWAV(filename.c_str());
-	  if(effect == NULL)
-	  	throw std::exception();
-	  chunks.push_back(effect);
-	  return chunks.size() - 1;
+		Mix_Chunk* effect = Mix_LoadWAV(filename.c_str());
+		if (effect == NULL)
+			throw std::exception();
+		chunks.push_back(effect);
+		return chunks.size() - 1;
 	}
 
 	void play(size_t idx) {
@@ -303,133 +301,130 @@ int main(int argc, char** argv) {
 	Canvas* canvas = new Canvas(WIDTH * 20, HEIGHT * 40, false);
 	Sound snd;
 	snd.load("swing.wav");
-	std::thread midiThread([&]() {
-		int nBytes;
+	std::thread midiThread(
+			[&]() {
+				int nBytes;
 
-		while ( !DONE ) {
-			MIDI_IN->getMessage( &MESSAGE );
+				while ( !DONE ) {
+					MIDI_IN->getMessage( &MESSAGE );
 
-			nBytes = MESSAGE.size();
+					nBytes = MESSAGE.size();
 
-			if(nBytes == 10) {
-				EVENT_MUTEX.lock();
-				EVENT.ctrlNr_ = MESSAGE[1];
-//      	event.roll_ = avgRoll.smooth(message[2]);
-//      	event.pitch_ = avgPitch.smooth(message[3]);
-//      	event.x_a_ = avgAccX.smooth(message[4]);
-//      	event.y_a_ = avgAccY.smooth(message[5]);
-//      	event.z_a_ = avgAccZ.smooth(message[6]);
-			EVENT.roll_ = MESSAGE[2];
-			EVENT.pitch_ = MESSAGE[3];
-			EVENT.xa_ = MESSAGE[4];
-			EVENT.ya_ = MESSAGE[5];
-			EVENT.za_ = MESSAGE[6];
-			uint16_t buttons = (((uint16_t) MESSAGE[7])) | ((uint16_t) MESSAGE[8] << 8);
+					if(nBytes == 10) {
+						EVENT_MUTEX.lock();
+						EVENT.ctrlNr_ = MESSAGE[1];
 
-			EVENT.btn_up_.update(buttons & MASK_BTN_UP);
-			EVENT.btn_down_.update(buttons & MASK_BTN_DOWN);
-			EVENT.btn_left_.update(buttons & MASK_BTN_LEFT);
-			EVENT.btn_right_.update(buttons & MASK_BTN_RIGHT);
-			EVENT.btn_a_.update(buttons & MASK_BTN_A);
-			EVENT.btn_b_.update(buttons & MASK_BTN_B);
-			EVENT.btn_minus_.update(buttons & MASK_BTN_MINUS);
-			EVENT.btn_plus_.update(buttons & MASK_BTN_PLUS);
-			EVENT.btn_home_.update(buttons & MASK_BTN_HOME);
-			EVENT.btn_1_.update(buttons & MASK_BTN_1);
-			EVENT.btn_2_.update(buttons & MASK_BTN_2);
+						EVENT.roll_ = MESSAGE[2];
+						EVENT.pitch_ = MESSAGE[3];
+						EVENT.xa_ = MESSAGE[4];
+						EVENT.ya_ = MESSAGE[5];
+						EVENT.za_ = MESSAGE[6];
+						uint16_t buttons = (((uint16_t) MESSAGE[7])) | ((uint16_t) MESSAGE[8] << 8);
 
-			if(EVENT.btn_right_.release_)
-			++TEXTURE_IDX;
-			else if(EVENT.btn_left_.release_)
-			--TEXTURE_IDX;
+						EVENT.btn_up_.update(buttons & MASK_BTN_UP);
+						EVENT.btn_down_.update(buttons & MASK_BTN_DOWN);
+						EVENT.btn_left_.update(buttons & MASK_BTN_LEFT);
+						EVENT.btn_right_.update(buttons & MASK_BTN_RIGHT);
+						EVENT.btn_a_.update(buttons & MASK_BTN_A);
+						EVENT.btn_b_.update(buttons & MASK_BTN_B);
+						EVENT.btn_minus_.update(buttons & MASK_BTN_MINUS);
+						EVENT.btn_plus_.update(buttons & MASK_BTN_PLUS);
+						EVENT.btn_home_.update(buttons & MASK_BTN_HOME);
+						EVENT.btn_1_.update(buttons & MASK_BTN_1);
+						EVENT.btn_2_.update(buttons & MASK_BTN_2);
 
-			if(TEXTURE_IDX >= TEXTURES.size())
-			TEXTURE_IDX = 0;
-			else if(TEXTURE_IDX < 0)
-			TEXTURE_IDX = TEXTURES.size() - 1;
+						if(EVENT.btn_right_.release_)
+						++TEXTURE_IDX;
+						else if(EVENT.btn_left_.release_)
+						--TEXTURE_IDX;
 
-			EVENT_MUTEX.unlock();
-		}
+						if(TEXTURE_IDX >= TEXTURES.size())
+						TEXTURE_IDX = 0;
+						else if(TEXTURE_IDX < 0)
+						TEXTURE_IDX = TEXTURES.size() - 1;
 
-		std::this_thread::yield();
-		usleep( 10000 );
-	}
-});
+						EVENT_MUTEX.unlock();
+					}
+
+					std::this_thread::yield();
+					usleep( 10000 );
+				}
+			});
 	double lastTotal = -1;
-	milliseconds lastMillis = duration_cast< milliseconds >(
-	    system_clock::now().time_since_epoch()
-	);
-	std::thread slideThread([&]() {
-		while(!DONE) {
-			EVENT_MUTEX.lock();
-			off_t roll = (EVENT.roll_ - 64);
-			off_t pitch = (EVENT.pitch_ - 64) * -1;
-			double xa = EVENT.xa_ - 50;
-			double ya = EVENT.ya_ - 50;
-			double za = EVENT.za_ - 50;
-			if(xa < 20)
-			xa = 0;
-			if(ya < 20)
-			ya = 0;
-			if(za < 20)
-			za = 0;
-			EVENT_MUTEX.unlock();
-			VP_MTX.lock();
+	milliseconds lastMillis = duration_cast<milliseconds>(
+			system_clock::now().time_since_epoch());
+	std::thread slideThread(
+			[&]() {
+				while(!DONE) {
+					EVENT_MUTEX.lock();
+					off_t roll = (EVENT.roll_ - 64);
+					off_t pitch = (EVENT.pitch_ - 64) * -1;
+					double xa = EVENT.xa_ - 50;
+					double ya = EVENT.ya_ - 50;
+					double za = EVENT.za_ - 50;
+					if(xa < 20)
+					xa = 0;
+					if(ya < 20)
+					ya = 0;
+					if(za < 20)
+					za = 0;
+					EVENT_MUTEX.unlock();
+					VP_MTX.lock();
 
-			VIEWPORT.speedX_ += roll;
+					VIEWPORT.speedX_ += roll;
 
-			VIEWPORT.speedY_ += pitch;
+					VIEWPORT.speedY_ += pitch;
 
-			if(std::abs(VIEWPORT.speedX_) / 20 < 0.01)
-			VIEWPORT.speedX_ = 0;
-			if(std::abs(VIEWPORT.speedY_) / 50 < 0.01)
-			VIEWPORT.speedY_ = 0;
+					if(std::abs(VIEWPORT.speedX_) / 20 < 0.01)
+					VIEWPORT.speedX_ = 0;
+					if(std::abs(VIEWPORT.speedY_) / 50 < 0.01)
+					VIEWPORT.speedY_ = 0;
 
-			VIEWPORT.x_ += ceil(VIEWPORT.speedX_ / 20);
-			VIEWPORT.y_ += ceil(VIEWPORT.speedY_ / 50);
+					VIEWPORT.x_ += ceil(VIEWPORT.speedX_ / 20);
+					VIEWPORT.y_ += ceil(VIEWPORT.speedY_ / 50);
 
-			VIEWPORT.hue_ += xa;
-			VIEWPORT.lightness_ += ya;
-			VIEWPORT.saturation_ += za;
+					VIEWPORT.hue_ += xa;
+					VIEWPORT.lightness_ += ya;
+					VIEWPORT.saturation_ += za;
 
-			double total = xa + ya + za;
-			milliseconds millis = duration_cast< milliseconds >(
-				    system_clock::now().time_since_epoch()
-				);
-			if(lastTotal == -1 || (total - lastTotal > 25 && (millis - lastMillis).count() > 250)) {
-				snd.play(0);
-				lastMillis = millis;
-			}
-			lastTotal = total;
-			TEXTURE_MTX.lock();
-			if(VIEWPORT.x_ >= TEXTURES[TEXTURE_IDX].cols) {
-				VIEWPORT.x_ = VIEWPORT.x_ % TEXTURES[TEXTURE_IDX].cols;
-			} else if(VIEWPORT.x_ < 0) {
-				VIEWPORT.x_ = TEXTURES[TEXTURE_IDX].cols + VIEWPORT.x_;
-			}
-			if(VIEWPORT.y_ >= TEXTURES[TEXTURE_IDX].rows) {
-				VIEWPORT.y_ = VIEWPORT.y_ % TEXTURES[TEXTURE_IDX].rows;
-			} else if(VIEWPORT.y_ < 0) {
-				VIEWPORT.y_ = TEXTURES[TEXTURE_IDX].rows + VIEWPORT.y_;
-			}
-			TEXTURE_MTX.unlock();
+					double total = xa + ya + za;
+					milliseconds millis = duration_cast< milliseconds >(
+							system_clock::now().time_since_epoch()
+					);
+					if(lastTotal == -1 || (total - lastTotal > 25 && (millis - lastMillis).count() > 250)) {
+						snd.play(0);
+						lastMillis = millis;
+					}
+					lastTotal = total;
+					TEXTURE_MTX.lock();
+					if(VIEWPORT.x_ >= TEXTURES[TEXTURE_IDX].cols) {
+						VIEWPORT.x_ = VIEWPORT.x_ % TEXTURES[TEXTURE_IDX].cols;
+					} else if(VIEWPORT.x_ < 0) {
+						VIEWPORT.x_ = TEXTURES[TEXTURE_IDX].cols + VIEWPORT.x_;
+					}
+					if(VIEWPORT.y_ >= TEXTURES[TEXTURE_IDX].rows) {
+						VIEWPORT.y_ = VIEWPORT.y_ % TEXTURES[TEXTURE_IDX].rows;
+					} else if(VIEWPORT.y_ < 0) {
+						VIEWPORT.y_ = TEXTURES[TEXTURE_IDX].rows + VIEWPORT.y_;
+					}
+					TEXTURE_MTX.unlock();
 
-			VIEWPORT.speedX_ /= 2;
-			VIEWPORT.speedY_ /= 2;
-			VIEWPORT.hue_ /= 2;
-			VIEWPORT.lightness_ /= 2;
-			VIEWPORT.saturation_ /= 2;
+					VIEWPORT.speedX_ /= 2;
+					VIEWPORT.speedY_ /= 2;
+					VIEWPORT.hue_ /= 2;
+					VIEWPORT.lightness_ /= 2;
+					VIEWPORT.saturation_ /= 2;
 
-			VP_MTX.unlock();
-			std::this_thread::yield();
-			usleep(40000);
-		}
-	});
+					VP_MTX.unlock();
+					std::this_thread::yield();
+					usleep(40000);
+				}
+			});
 
 	SDL_Event event;
 	cv::Mat* view = new cv::Mat(HEIGHT, WIDTH, CV_8UC4);
-//  cv::Mat* last = new cv::Mat(HEIGHT, WIDTH, CV_8UC4);
-//  cv::Mat *dst = new cv::Mat(HEIGHT, WIDTH, CV_8UC4);
+  cv::Mat* last = new cv::Mat(HEIGHT, WIDTH, CV_8UC4);
+  cv::Mat *dst = new cv::Mat(HEIGHT, WIDTH, CV_8UC4);
 	while (!DONE) {
 		if (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) {
@@ -440,15 +435,15 @@ int main(int argc, char** argv) {
 		TEXTURE_MTX.lock();
 		extractROI(TEXTURES[TEXTURE_IDX], *view);
 		TEXTURE_MTX.unlock();
-//    if(!last->empty()) {
-//    	for(size_t i = 1; i < 4; ++i) {
-//    		blend(*last, *view, 1.0/4 - i, *dst);
-//        draw(canvas, *dst);
-//        usleep(10000);
-//    	}
-//    }
+		if(!last->empty()) {
+			for(size_t i = 1; i < 4; ++i) {
+				blend(*last, *view, 1.0/4 - i, *dst);
+				draw(canvas, *dst);
+				usleep(10000);
+			}
+		}
 		draw(canvas, *view);
-//    view->copyTo(*last);
+    view->copyTo(*last);
 		std::this_thread::yield();
 		usleep(40000);
 	}
