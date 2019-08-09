@@ -3,6 +3,7 @@
 
 #include <rtmidi/RtMidi.h>
 #include "button.hpp"
+#include <iostream>
 
 struct WMEvent {
 	int ctrlNr_ = 0;
@@ -22,15 +23,19 @@ struct WMEvent {
 	Button btn_home_;
 	Button btn_1_;
 	Button btn_2_;
+	uint16_t buttonMask_;
 };
 
-class Midi {
+
+std::ostream& operator<<(std::ostream &out, WMEvent& ev);
+class MidiWiimote {
 private:
 	RtMidiIn *midiin = new RtMidiIn();
 	std::vector<uint8_t> msg;
+	static WMEvent* ev;
 public:
-	Midi(int32_t inport);
-	virtual ~Midi();
+	MidiWiimote(int32_t inport);
+	virtual ~MidiWiimote();
 	WMEvent receive();
 };
 

@@ -1,13 +1,7 @@
-/*
- * Button.hpp
- *
- *  Created on: Jul 29, 2017
- *      Author: elchaschab
- */
-
 #ifndef SRC_BUTTON_HPP_
 #define SRC_BUTTON_HPP_
 
+#include <iostream>
 const uint16_t MASK_BTN_UP = 0b00000001;
 const uint16_t MASK_BTN_DOWN = 0b00000010;
 const uint16_t MASK_BTN_LEFT = 0b00000100;
@@ -40,7 +34,7 @@ struct Button {
   }
 };
 
-
+std::ostream& operator<<(std::ostream& out, const Button& btn);
 
 
 
