@@ -183,6 +183,7 @@ int main(int argc, char** argv) {
 		while ( !DONE ) {
 			EVENT_MUTEX.lock();
 			EVENT = midi.receive();
+			std::cerr << EVENT << std::endl;
 			EVENT_MUTEX.unlock();
 
 			std::this_thread::yield();
