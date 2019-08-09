@@ -10,13 +10,14 @@
 #include "../lib/canvas.hpp"
 #include "../lib/button.hpp"
 #include "../lib/color.hpp"
-#include "../lib/midi.hpp"
+#include "../lib/midiwiimote.hpp"
 #include "../lib/sound.hpp"
 
 using namespace std::chrono;
 
 constexpr off_t WIDTH = 100;
 constexpr off_t HEIGHT = 10;
+constexpr size_t MAGNIFICATION = 18;
 
 bool DONE;
 static void FINISH(int ignore) {
@@ -146,9 +147,9 @@ void draw(Canvas* canvas, cv::Mat& m) {
 		for (off_t j = 0; j < m.cols; j++) {
 			if (j >= surface->h)
 				continue;
-			for (off_t k = 0; k < 20; k++) {
-				for (off_t l = 0; l < 20; l++) {
-					canvas->putpixel(j * 20 + l, i * 20 + k, m.at<int32_t>(i, j));
+			for (off_t k = 0; k < MAGNIFICATION; k++) {
+				for (off_t l = 0; l < MAGNIFICATION; l++) {
+					canvas->putpixel(j * MAGNIFICATION + l, i * MAGNIFICATION + k, m.at<int32_t>(i, j));
 				}
 			}
 		}
@@ -174,8 +175,8 @@ int main(int argc, char** argv) {
 		TEXTURES.push_back(texture);
 	}
 
-	Canvas* canvas = new Canvas(WIDTH * 20, HEIGHT * 40, false);
-	Midi midi(0);
+	Canvas* canvas = new Canvas(WIDTH * MAGNIFICATION, HEIGHT * MAGNIFICATION * 2, false);
+	MidiWiimote midi(0);
 	Sound snd;
 	snd.load("swing.wav");
 	std::thread midiThread([&]() {
@@ -265,7 +266,7 @@ int main(int argc, char** argv) {
 
 					VP_MTX.unlock();
 					std::this_thread::yield();
-					usleep(40000);
+					usleep(16667);
 				}
 			});
 
