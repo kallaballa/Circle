@@ -7,7 +7,7 @@
 Canvas::Canvas(size_t screenWidth, size_t screenHeight, bool offscreen) :
   screen(NULL), screenWidth(screenWidth), screenHeight(screenHeight), offscreen(offscreen) {
   if (screenWidth > 0 && screenHeight > 0) {
-    if (SDL_Init(SDL_INIT_VIDEO) == -1) {
+    if (SDL_Init(SDL_INIT_EVERYTHING) == -1) {
       printf("Can't init SDL:  %s\n", SDL_GetError());
       exit(1);
     }

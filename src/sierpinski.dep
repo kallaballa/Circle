@@ -1,5 +1,4 @@
 sierpinski.o: sierpinski.cpp /usr/include/libpng16/png.h \
  /usr/include/libpng16/pnglibconf.h /usr/include/libpng16/pngconf.h \
  ../third/history/NLCommand.h ../third/history/NLCommandGroup.h \
- ../third/history/NLHistory.h canvas.hpp button.hpp average.hpp trans.hpp \
- color.hpp
+ ../third/history/NLHistory.h canvas.hpp button.hpp average.hpp color.hpp

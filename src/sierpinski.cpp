@@ -11,8 +11,10 @@
 #include <pthread.h>
 #include <bitset>
 #include <csignal>
+#include <chrono>
 #include <opencv2/opencv.hpp>
 #include <rtmidi/RtMidi.h>
+#include <SDL/SDL_mixer.h>
 #include <cstdlib>
 #include <cstdio>
 #include <png.h>
@@ -23,6 +25,8 @@
 #include "button.hpp"
 #include "average.hpp"
 #include "color.hpp"
+
+using namespace std::chrono;
 
 constexpr off_t WIDTH = 100;
 constexpr off_t HEIGHT = 10;
@@ -155,13 +159,30 @@ void extractROI(const cv::Mat& texture, cv::Mat& view) {
 	for (size_t c = 0; c < view.cols; ++c) {
 		for (size_t r = 0; r < view.rows; ++r) {
 			uint32_t& p = view.at<uint32_t>(r, c);
+
+//			std::cerr << '1' << std::hex << p << std::dec << std::endl;
 			RGBColor before(p);
-			HSLColor hsl(before);
-			hsl.adjustHue(h);
-			hsl.adjustSaturation(s);
-			hsl.adjustLightness(l);
-			RGBColor after(hsl);
-			p = after.val();
+//			std::cerr << "RGB:" << std::hex << before.r_ << before.g_ << before.b_ << std::dec << std::endl;
+//			std::cerr << '2' << std::hex << before.val() << std::dec << std::endl;
+			before.r_ += h * 2;
+			before.g_ += s * 2;
+			before.b_ += l * 2;
+			if(before.r_ > 255)
+				before.r_ = 255;
+			if(before.g_ > 255)
+				before.g_ = 255;
+			if(before.b_ > 255)
+				before.b_ = 255;
+
+
+			//			HSLColor hsl(before);
+////			hsl.adjustHue(h);
+//			//hsl.adjustSaturation(s);
+//			//hsl.adjustLightness(l);
+//			RGBColor after(hsl);
+//			std::cerr << '3' << std::hex << before.val() << std::dec << std::endl;
+//
+			p = before.val();
 		}
 	}
 }
@@ -222,6 +243,45 @@ void draw(Canvas* canvas, cv::Mat& m) {
 	canvas->update();
 }
 
+class Sound {
+private:
+	std::vector<Mix_Chunk*> chunks;
+public:
+	Sound() {
+	  //Initialize SDL_mixer
+	  if( Mix_OpenAudio( 44100, AUDIO_U8, 1, 512 ) == -1 )
+	  {
+	  	std::cerr << "Error opening audio device" << std::endl;
+	      throw std::exception();
+	  }
+	}
+
+	~Sound() {
+		for (auto& c : chunks)
+			Mix_FreeChunk(c);
+
+		Mix_CloseAudio();
+
+	}
+
+	//Loads the wav file and returns it's index
+	size_t load(const string& filename) {
+	  Mix_Chunk* effect = Mix_LoadWAV(filename.c_str());
+	  if(effect == NULL)
+	  	throw std::exception();
+	  chunks.push_back(effect);
+	  return chunks.size() - 1;
+	}
+
+	void play(size_t idx) {
+		if (Mix_Playing(1) != 0)
+			return;
+		if ( Mix_PlayChannel( -1, chunks[idx], 0 ) == -1) {
+			throw std::exception();
+		}
+	}
+};
+
 int main(int argc, char** argv) {
 	if (argc < 2) {
 		std::cerr << "Usage: slide <png-file-1> <png-file-2> ..." << std::endl;
@@ -241,7 +301,8 @@ int main(int argc, char** argv) {
 	signal(SIGINT, FINISH);
 
 	Canvas* canvas = new Canvas(WIDTH * 20, HEIGHT * 40, false);
-
+	Sound snd;
+	snd.load("swing.wav");
 	std::thread midiThread([&]() {
 		int nBytes;
 
@@ -294,7 +355,10 @@ int main(int argc, char** argv) {
 		usleep( 10000 );
 	}
 });
-
+	double lastTotal = -1;
+	milliseconds lastMillis = duration_cast< milliseconds >(
+	    system_clock::now().time_since_epoch()
+	);
 	std::thread slideThread([&]() {
 		while(!DONE) {
 			EVENT_MUTEX.lock();
@@ -328,7 +392,15 @@ int main(int argc, char** argv) {
 			VIEWPORT.lightness_ += ya;
 			VIEWPORT.saturation_ += za;
 
-			std::cerr << VIEWPORT.hue_ << '\t' << VIEWPORT.lightness_ << '\t' << VIEWPORT.saturation_ << std::endl;
+			double total = xa + ya + za;
+			milliseconds millis = duration_cast< milliseconds >(
+				    system_clock::now().time_since_epoch()
+				);
+			if(lastTotal == -1 || (total - lastTotal > 25 && (millis - lastMillis).count() > 250)) {
+				snd.play(0);
+				lastMillis = millis;
+			}
+			lastTotal = total;
 			TEXTURE_MTX.lock();
 			if(VIEWPORT.x_ >= TEXTURES[TEXTURE_IDX].cols) {
 				VIEWPORT.x_ = VIEWPORT.x_ % TEXTURES[TEXTURE_IDX].cols;

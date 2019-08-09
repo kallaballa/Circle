@@ -219,7 +219,7 @@ int main (int argc, char *argv[])
     while(true) {
     	if(wiimote == NULL)
     		continue;
-    	std::cerr << pitch << '\t' << (((pitch / M_PI) + 1.0) / 1.4) * 127 << std::endl;
+//    	std::cerr << pitch << '\t' << (((pitch / M_PI) + 1.0) / 1.4) * 127 << std::endl;
 
       msg[0] = 0xf0;
       msg[1] = ctrlNr;
@@ -235,10 +235,10 @@ int main (int argc, char *argv[])
         if(msg[i] > 127)
           msg[i] = 127;
       }
-      for(auto c : msg) {
-        std::cout << "msg:" << (int)c << std::endl;
-      }
-      std::cout << std::endl;
+//      for(auto c : msg) {
+//        std::cout << "msg:" << (int)c << std::endl;
+//      }
+//      std::cout << std::endl;
 
 //      std::cout << a_x << " " << a_y << " " << a_z << std::endl;
       midiout->sendMessage( &msg );

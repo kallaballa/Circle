@@ -81,7 +81,7 @@ RGBColor::RGBColor(const HSLColor& hsl) :
 RGBColor::RGBColor(const uint32_t& v) :
   r_((uint8_t)((v>>16)&0xFF)),
   g_((uint8_t)((v>>8)&0xFF)),
-  b_((uint8_t)(v&0xFF)){
+  b_((uint8_t)((v)&0xFF)){
 }
 
 // This is a subfunction of HSLtoRGB
@@ -100,7 +100,7 @@ void RGBColor::HSLtoRGB_Subfunction(int16_t& c, const float& temp1, const float&
 }
 
 const uint32_t RGBColor::val() const {
-  return ((uint32_t)r_<<16) | ((uint32_t)g_<<8) | b_;
+  return 0xff000000 | (((uint32_t)r_<<16) | ((uint32_t)g_<<8) | b_);
 }
 
 
