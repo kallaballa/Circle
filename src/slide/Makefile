@@ -1,6 +1,6 @@
 TARGET := slide
 
-SRCS    := slide.cpp ../lib/canvas.cpp ../lib/save_surf.cpp ../lib/color.cpp ../lib/midi.cpp
+SRCS    := slide.cpp ../lib/canvas.cpp ../lib/save_surf.cpp ../lib/color.cpp ../lib/midiwiimote.cpp ../lib/button.cpp
 
 #precompiled headers
 HEADERS := 

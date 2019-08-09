@@ -161,7 +161,7 @@ void draw(Canvas* canvas, cv::Mat& m) {
 
 
 int main(int argc, char** argv) {
-	if (argc < 2) {
+	if (argc < 1) {
 		std::cerr << "Usage: slide <png-file-1> <png-file-2> ..." << std::endl;
 		exit(1);
 	}
@@ -180,10 +180,14 @@ int main(int argc, char** argv) {
 	Sound snd;
 	snd.load("swing.wav");
 	std::thread midiThread([&]() {
+		WMEvent ev;
 		while ( !DONE ) {
+
 			EVENT_MUTEX.lock();
-			EVENT = midi.receive();
-			std::cerr << EVENT << std::endl;
+			ev = midi.receive();
+			if(ev.roll_ != 0 && ev.pitch_ != 0 && ev.xa_ != 0 && ev.ya_ != 0 && ev.za_ != 0)
+			EVENT = ev;
+
 			EVENT_MUTEX.unlock();
 
 			std::this_thread::yield();
@@ -197,6 +201,7 @@ int main(int argc, char** argv) {
 			[&]() {
 				while(!DONE) {
 					EVENT_MUTEX.lock();
+
 					if(EVENT.btn_right_.release_)
 					++TEXTURE_IDX;
 					else if(EVENT.btn_left_.release_)
