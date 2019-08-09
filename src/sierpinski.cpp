@@ -423,8 +423,9 @@ int main(int argc, char** argv) {
 
 	SDL_Event event;
 	cv::Mat* view = new cv::Mat(HEIGHT, WIDTH, CV_8UC4);
-  cv::Mat* last = new cv::Mat(HEIGHT, WIDTH, CV_8UC4);
-  cv::Mat *dst = new cv::Mat(HEIGHT, WIDTH, CV_8UC4);
+//  cv::Mat* last = new cv::Mat(HEIGHT, WIDTH, CV_8UC4);
+//  cv::Mat *dst = new cv::Mat(HEIGHT, WIDTH, CV_8UC4);
+//  std::vector<cv::Mat> tweens(13);
 	while (!DONE) {
 		if (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) {
@@ -435,17 +436,19 @@ int main(int argc, char** argv) {
 		TEXTURE_MTX.lock();
 		extractROI(TEXTURES[TEXTURE_IDX], *view);
 		TEXTURE_MTX.unlock();
-		if(!last->empty()) {
-			for(size_t i = 1; i < 4; ++i) {
-				blend(*last, *view, 1.0/4 - i, *dst);
-				draw(canvas, *dst);
-				usleep(10000);
-			}
-		}
+//		if(!last->empty()) {
+//			for(size_t i = 1; i < 14; ++i) {
+//				blend(*last, *view, 1.0/i, *dst);
+//				dst->copyTo(tweens[i-1]);
+//			}
+//		}
+//		for(size_t i = 1; i < 14; ++i) {
+//			draw(canvas, tweens[i-1]);
+//		}
 		draw(canvas, *view);
-    view->copyTo(*last);
+//    view->copyTo(*last);
 		std::this_thread::yield();
-		usleep(40000);
+		usleep(20000);
 	}
 
 	return 0;
