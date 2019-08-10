@@ -1,0 +1,2 @@
+piano.o: piano.cpp ../lib/canvas.hpp ../lib/button.hpp ../lib/color.hpp \
+ ../lib/midikeyboard.hpp

@@ -149,7 +149,7 @@ void draw(Canvas* canvas, cv::Mat& m) {
 				continue;
 			for (off_t k = 0; k < MAGNIFICATION; k++) {
 				for (off_t l = 0; l < MAGNIFICATION; l++) {
-					canvas->putpixel(j * MAGNIFICATION + l, i * MAGNIFICATION + k, m.at<int32_t>(i, j));
+					canvas->putpixel(j * MAGNIFICATION + l, i * MAGNIFICATION + k + (HEIGHT * MAGNIFICATION / 2), m.at<int32_t>(i, j));
 				}
 			}
 		}
