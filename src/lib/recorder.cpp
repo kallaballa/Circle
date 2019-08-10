@@ -19,7 +19,7 @@ Recorder::Recorder(RecorderCallback callback, uint32_t sampleRate, uint32_t samp
   int i;
 
   std::cerr << "Opening capture device:" << std::endl;
-  captureDev_ = alcCaptureOpenDevice(NULL, sampleRate, AL_FORMAT_MONO16, samplesPerFrame);
+  captureDev_ = alcCaptureOpenDevice(NULL, sampleRate, AL_FORMAT_MONO8, samplesPerFrame);
   if (captureDev_ == NULL) {
     std::cerr << "Unable to open device!:" << std::endl;
     exit(1);
@@ -58,18 +58,17 @@ void Recorder::capture() {
     if (samplesAvailable > 0) {
       alcCaptureSamples(captureDev_, captureBuffer, samplesAvailable);
 
-      for(size_t i = 0; i < samplesAvailable; i+=2) {
+      for(size_t i = 0; i < samplesAvailable; i++) {
         if(buffer.size() >= samplesPerFrame_) {
           callback_(buffer);
           buffer.clear();
         }
-        short sample = captureBuffer[i];
-        sample = sample | (((short)captureBuffer[i + 1]) << 8);
-        buffer.push_back(((double)sample) / ((double)std::numeric_limits<short>().max()));
+
+        buffer.push_back(((double)captureBuffer[i]));
       }
     }
 
-    usleep(10000);
+    usleep(1000);
   }
   });
   captureThread.detach();
