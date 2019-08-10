@@ -72,7 +72,7 @@ void Canvas::putpixel(int x, int y, Uint32 pixel) {
 	}
 }
 
-void Canvas::draw(cv::Mat& m, const size_t& magnification) {
+void Canvas::draw(cv::Mat& m, const size_t& magnification, const size_t& offX, const size_t& offY) {
 	this->fillRectangle(0, 0, this->screenWidth, this->screenHeight, 0, 0,
 			0, 255);
 
@@ -87,7 +87,7 @@ void Canvas::draw(cv::Mat& m, const size_t& magnification) {
 				continue;
 			for (off_t k = 0; k < magnification; k++) {
 				for (off_t l = 0; l < magnification; l++) {
-					this->putpixel(j * magnification + l, i * magnification + k + (m.rows * magnification / 2), m.at<int32_t>(i, j));
+					this->putpixel(offX + j * magnification + l, offY + i * magnification + k + (m.rows * magnification / 2), m.at<int32_t>(i, j));
 				}
 			}
 		}

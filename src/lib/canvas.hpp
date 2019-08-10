@@ -22,7 +22,7 @@ public:
     return screen;
   }
   void putpixel(int x, int y, Uint32 pixel);
-  void draw(cv::Mat& m, const size_t& MAGNIFICATION);
+  void draw(cv::Mat& m, const size_t& MAGNIFICATION, const size_t& offX = 0, const size_t& off = 0);
 private:
   class SDL_Surface *screen;
 
