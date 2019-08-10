@@ -51,12 +51,19 @@ int main(int argc, char** argv) {
 			capture.set(CV_CAP_PROP_POS_AVI_RATIO, 0);
 			continue;
 		}
-		double ratio = frameRGBA.rows / (double)HEIGHT;
 
-		cv::resize(frameRGBA, scaled(cv::Rect(0,0,WIDTH / ratio,HEIGHT)), {WIDTH / ratio,HEIGHT}, 0, 0, cv::INTER_CUBIC);
-		cv::Mat tile = scaled(cv::Rect(0,0,WIDTH / ratio,HEIGHT));
-		for(size_t i = 0; i < (WIDTH / (WIDTH / ratio)); ++i)
-			tile.copyTo(scaled(cv::Rect((WIDTH / ratio) * i,0,(WIDTH / ratio), HEIGHT)));
+		double scaledW = 0;
+		double scaledH = 0;
+		double ratioW = frameRGBA.cols / (double)WIDTH;
+		double ratioH = frameRGBA.rows / (double)HEIGHT;
+		double ratio = std::max(ratioW, ratioH);
+		scaledW = frameRGBA.cols  / ratio;
+		scaledH = frameRGBA.rows  / ratio;
+
+		cv::resize(frameRGBA, scaled(cv::Rect(0,0,scaledW, scaledH)), {scaledW, scaledH}, 0, 0, cv::INTER_CUBIC);
+		cv::Mat tile = scaled(cv::Rect(0,0, scaledW, scaledH));
+		for(size_t i = 0; i < floor(WIDTH / scaledW); ++i)
+			tile.copyTo(scaled(cv::Rect(scaledW * i,0,scaledW, scaledH)));
 		canvas->draw(scaled, MAGNIFICATION);
 
 		usleep(1000000 / fps);
