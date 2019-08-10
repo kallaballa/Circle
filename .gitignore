@@ -88,6 +88,12 @@ src/lib/button.o
 src/lib/midiwiimote.dep
 src/lib/midiwiimote.o
 src/piano/piano
+src/lib/midikeyboard.dep
+src/lib/midikeyboard.o
+src/lib/recorder.dep
+src/spectro/spectro.dep
+src/spectro/spectro.o
+
 src/piano/piano.dep
 src/piano/piano.o
 
