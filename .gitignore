@@ -87,4 +87,7 @@ src/lib/button.dep
 src/lib/button.o
 src/lib/midiwiimote.dep
 src/lib/midiwiimote.o
+src/piano/piano
+src/piano/piano.dep
+src/piano/piano.o
 
