@@ -90,6 +90,8 @@ src/lib/midiwiimote.o
 src/piano/piano
 src/lib/midikeyboard.dep
 src/lib/midikeyboard.o
+src/lib/recorder.o
+src/spectro/spectro
 src/lib/recorder.dep
 src/spectro/spectro.dep
 src/spectro/spectro.o
