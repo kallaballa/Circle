@@ -3,6 +3,7 @@
 
 #include <algorithm>
 #include <string>
+#include <opencv2/opencv.hpp>
 #include <SDL/SDL.h>
 
 using std::string;
@@ -21,6 +22,7 @@ public:
     return screen;
   }
   void putpixel(int x, int y, Uint32 pixel);
+  void draw(cv::Mat& m, const size_t& MAGNIFICATION);
 private:
   class SDL_Surface *screen;
 

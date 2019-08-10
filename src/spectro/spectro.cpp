@@ -31,7 +31,7 @@ struct AudioSettings {
   size_t samples;
 };
 
-AudioSettings AS = {true, 44100, 2048};
+AudioSettings AS = {true, 8000, 512};
 
 
 typedef std::vector<double> AudioWindow;
@@ -43,16 +43,6 @@ static void FINISH(int ignore) {
 	DONE = true;
 }
 
-double mix_channels(AudioWindow& buffer) {
-	double avg = 0;
-	for (double& d : buffer) {
-		avg += d;
-	}
-	avg /= buffer.size();
-
-	return avg;
-}
-
 void blend(const cv::Mat& src1, const cv::Mat& src2, const double alpha,
 		const cv::Mat& dst) {
 	using namespace cv;
@@ -60,30 +50,6 @@ void blend(const cv::Mat& src1, const cv::Mat& src2, const double alpha,
 
 	beta = (1.0 - alpha);
 	addWeighted(src1, alpha, src2, beta, 0.0, dst);
-}
-
-void draw(Canvas* canvas, cv::Mat& m) {
-	canvas->fillRectangle(0, 0, canvas->screenWidth, canvas->screenHeight, 0, 0,
-			0, 255);
-
-	SDL_Surface* surface = canvas->getSurface();
-	Uint32 *p = NULL;
-
-	for (off_t i = 0; i < m.rows; i++) {
-		if (i >= surface->w)
-			continue;
-		for (off_t j = 0; j < m.cols; j++) {
-			if (j >= surface->h)
-				continue;
-			for (off_t k = 0; k < MAGNIFICATION; k++) {
-				for (off_t l = 0; l < MAGNIFICATION; l++) {
-					canvas->putpixel(j * MAGNIFICATION + l, i * MAGNIFICATION + k + (HEIGHT * MAGNIFICATION / 2), m.at<int32_t>(i, j));
-				}
-			}
-		}
-	}
-
-	canvas->update();
 }
 
 void render(std::vector<double>& absSpectrum,
@@ -94,7 +60,7 @@ void render(std::vector<double>& absSpectrum,
 		max = std::max(absSpectrum[i], max);
 	}
 	for(size_t i = 1; i < absSpectrum.size(); ++i) {
-		absSpectrum[i] = absSpectrum[i] / max * HEIGHT;
+		absSpectrum[i] = absSpectrum[i] / 1024 * HEIGHT;
 	}
 //	std::cerr << max << std::endl;
 	if(std::round(max) < 100)
@@ -165,7 +131,7 @@ int main(int argc, char** argv) {
 			frameBuffer->copyTo(*result);
 			first = false;
 		}
-		draw(canvas, *result);
+		canvas->draw(*result, MAGNIFICATION);
 		result->copyTo(*last);
 
 		std::this_thread::yield();

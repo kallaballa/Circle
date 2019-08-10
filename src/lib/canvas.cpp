@@ -71,3 +71,27 @@ void Canvas::putpixel(int x, int y, Uint32 pixel) {
 		break;
 	}
 }
+
+void Canvas::draw(cv::Mat& m, const size_t& magnification) {
+	this->fillRectangle(0, 0, this->screenWidth, this->screenHeight, 0, 0,
+			0, 255);
+
+	SDL_Surface* surface = this->getSurface();
+	Uint32 *p = NULL;
+
+	for (off_t i = 0; i < m.rows; i++) {
+		if (i >= surface->w)
+			continue;
+		for (off_t j = 0; j < m.cols; j++) {
+			if (j >= surface->h)
+				continue;
+			for (off_t k = 0; k < magnification; k++) {
+				for (off_t l = 0; l < magnification; l++) {
+					this->putpixel(j * magnification + l, i * magnification + k + (m.rows * magnification / 2), m.at<int32_t>(i, j));
+				}
+			}
+		}
+	}
+
+	this->update();
+}

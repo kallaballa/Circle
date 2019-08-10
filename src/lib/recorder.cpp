@@ -68,7 +68,7 @@ void Recorder::capture() {
       }
     }
 
-    usleep(1000);
+//    usleep(10000);
   }
   });
   captureThread.detach();

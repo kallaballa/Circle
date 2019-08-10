@@ -47,30 +47,6 @@ void drawNote(const NoteEvent& ev, cv::Mat& m) {
 	cv::rectangle(m, cv::Point(note * 4, 0), cv::Point(note * 4 + 3,HEIGHT), cv::Scalar(rgb.b_,rgb.g_,rgb.r_), CV_FILLED);
 }
 
-void draw(Canvas* canvas, cv::Mat& m) {
-	canvas->fillRectangle(0, 0, canvas->screenWidth, canvas->screenHeight, 0, 0,
-			0, 255);
-
-	SDL_Surface* surface = canvas->getSurface();
-	Uint32 *p = NULL;
-
-	for (off_t i = 0; i < m.rows; i++) {
-		if (i >= surface->w)
-			continue;
-		for (off_t j = 0; j < m.cols; j++) {
-			if (j >= surface->h)
-				continue;
-			for (off_t k = 0; k < MAGNIFICATION; k++) {
-				for (off_t l = 0; l < MAGNIFICATION; l++) {
-					canvas->putpixel(j * MAGNIFICATION + l, i * MAGNIFICATION + k + (HEIGHT * MAGNIFICATION / 2), m.at<int32_t>(i, j));
-				}
-			}
-		}
-	}
-
-	canvas->update();
-}
-
 int main(int argc, char** argv) {
 	if (argc != 3) {
 		std::cerr << "Usage: piano <input-midi-port-nr> <output-midi-port-nr>..." << std::endl;
@@ -112,7 +88,7 @@ int main(int argc, char** argv) {
 			now->copyTo(*result);
 			first = false;
 		}
-		draw(canvas, *result);
+		canvas->draw(*result, MAGNIFICATION);
 		result->copyTo(*last);
 
 		std::this_thread::yield();

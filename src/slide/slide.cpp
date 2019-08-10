@@ -134,32 +134,6 @@ void extractROI(const cv::Mat& texture, cv::Mat& view) {
 	}
 }
 
-void draw(Canvas* canvas, cv::Mat& m) {
-	canvas->fillRectangle(0, 0, canvas->screenWidth, canvas->screenHeight, 0, 0,
-			0, 255);
-
-	SDL_Surface* surface = canvas->getSurface();
-	Uint32 *p = NULL;
-
-	for (off_t i = 0; i < m.rows; i++) {
-		if (i >= surface->w)
-			continue;
-		for (off_t j = 0; j < m.cols; j++) {
-			if (j >= surface->h)
-				continue;
-			for (off_t k = 0; k < MAGNIFICATION; k++) {
-				for (off_t l = 0; l < MAGNIFICATION; l++) {
-					canvas->putpixel(j * MAGNIFICATION + l, i * MAGNIFICATION + k + (HEIGHT * MAGNIFICATION / 2), m.at<int32_t>(i, j));
-				}
-			}
-		}
-	}
-
-	canvas->update();
-}
-
-
-
 int main(int argc, char** argv) {
 	if (argc < 1) {
 		std::cerr << "Usage: slide <png-file-1> <png-file-2> ..." << std::endl;
@@ -290,7 +264,7 @@ int main(int argc, char** argv) {
 		extractROI(TEXTURES[TEXTURE_IDX], *view);
 		TEXTURE_MTX.unlock();
 
-		draw(canvas, *view);
+		canvas->draw(*view, MAGNIFICATION);
 		std::this_thread::yield();
 		usleep(16667);
 	}
