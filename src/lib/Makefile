@@ -1,15 +1,14 @@
-TARGET := spectro
+TARGET := libcircle.so
 
-SRCS    := spectro.cpp
+SRCS    := button.cpp  canvas.cpp  color.cpp  midikeyboard.cpp  midiwiimote.cpp  recorder.cpp  save_surf.cpp
 
 #precompiled headers
 HEADERS := 
 OBJS    := ${SRCS:.cpp=.o} 
 DEPS    := ${SRCS:.cpp=.dep} 
 
-CXXFLAGS += -fpic -I../ -I/usr/include/ffmpeg/ -I../../third/aquila `pkg-config --cflags openal`
-LDFLAGS += -L../../third/aquila/ -L../../third/aquila/lib -L../lib/ -lcircle
-LIBS += -lAquila -lOoura_fft `pkg-config --libs openal`
+CXXFLAGS += -fpic -I../ -I/usr/include/ffmpeg/ `pkg-config --cflags openal`
+LDFLAGS += -shared `pkg-config --libs openal`
 .PHONY: all release debug clean distclean 
 
 all: release

@@ -1,6 +1,6 @@
 TARGET := slide
 
-SRCS    := slide.cpp ../lib/canvas.cpp ../lib/save_surf.cpp ../lib/color.cpp ../lib/midiwiimote.cpp ../lib/button.cpp
+SRCS    := slide.cpp
 
 #precompiled headers
 HEADERS := 
@@ -8,7 +8,7 @@ OBJS    := ${SRCS:.cpp=.o}
 DEPS    := ${SRCS:.cpp=.dep} 
 
 CXXFLAGS += -fpic -I../ -I/usr/include/ffmpeg/
-LDFLAGS += 
+LDFLAGS +=  -L../lib/ -lcircle
 .PHONY: all release debug clean distclean 
 
 all: release

@@ -1,6 +1,6 @@
 TARGET := video
 
-SRCS    := video.cpp ../lib/canvas.cpp  ../lib/save_surf.cpp
+SRCS    := video.cpp
 
 #precompiled headers
 HEADERS := 
@@ -8,7 +8,7 @@ OBJS    := ${SRCS:.cpp=.o}
 DEPS    := ${SRCS:.cpp=.dep} 
 
 CXXFLAGS += -fpic -I../ -I/usr/include/ffmpeg/
-LDFLAGS += 
+LDFLAGS +=  -L../lib/ -lcircle
 .PHONY: all release debug clean distclean 
 
 all: release
