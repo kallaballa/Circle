@@ -16,9 +16,9 @@ NoteEvent MidiKeyboard::receive() {
 
 	midiin_->getMessage(&msg_);
 	nBytes = msg_.size();
-	std::cerr << msg_.size() << std::endl;
+
 	if (nBytes == 3) {
-		ev_->on_ = msg_[0];
+		ev_->on_ = msg_[0] == 144;
 		ev_->note_ = msg_[1];
 		ev_->velocity_ = msg_[2];
 	}
