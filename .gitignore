@@ -96,6 +96,7 @@ src/lib/recorder.dep
 src/spectro/spectro.dep
 src/spectro/spectro.o
 src/piano/piano.dep
+src/lib/libcircle.so
 src/piano/piano.o
 src/video/video
 src/video/video.dep
