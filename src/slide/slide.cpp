@@ -149,7 +149,7 @@ int main(int argc, char** argv) {
 		TEXTURES.push_back(texture);
 	}
 
-	Canvas* canvas = new Canvas(WIDTH * MAGNIFICATION, HEIGHT * MAGNIFICATION * 2, false);
+	Canvas* canvas = new Canvas(WIDTH * MAGNIFICATION, HEIGHT * MAGNIFICATION, false);
 	MidiWiimote midi(0);
 	Sound snd;
 	snd.load("swing.wav");

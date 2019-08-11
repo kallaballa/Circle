@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
 	DONE = false;
 	signal(SIGINT, FINISH);
 
-	Canvas* canvas = new Canvas(WIDTH * MAGNIFICATION, HEIGHT * MAGNIFICATION * 2, false);
+	Canvas* canvas = new Canvas(WIDTH * MAGNIFICATION, HEIGHT * MAGNIFICATION, false);
 	MidiKeyboard midi(atoi(argv[1]));
 
 	std::thread midiThread([&]() {
