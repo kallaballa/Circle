@@ -101,4 +101,6 @@ src/piano/piano.o
 src/video/video
 src/video/video.dep
 src/video/video.o
-
+src/water/water
+src/water/water.dep
+src/water/water.o
