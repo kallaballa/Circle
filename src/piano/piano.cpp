@@ -129,6 +129,6 @@ int main(int argc, char** argv) {
 		std::this_thread::yield();
 		usleep(16667);
 	}
-
+	midiThread.join();
 	return 0;
 }
