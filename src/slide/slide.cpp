@@ -7,6 +7,7 @@
 #include <csignal>
 #include <chrono>
 #include <opencv2/opencv.hpp>
+#include "../lib/hysterisis.hpp"
 #include "../lib/canvas.hpp"
 #include "../lib/button.hpp"
 #include "../lib/color.hpp"
@@ -171,6 +172,7 @@ int main(int argc, char** argv) {
 	double lastTotal = -1;
 	milliseconds lastMillis = duration_cast<milliseconds>(
 			system_clock::now().time_since_epoch());
+	Hysterisis hyst;
 	std::thread slideThread(
 			[&]() {
 				while(!DONE) {
@@ -220,10 +222,17 @@ int main(int argc, char** argv) {
 					milliseconds millis = duration_cast< milliseconds >(
 							system_clock::now().time_since_epoch()
 					);
-					if(lastTotal == -1 || (total - lastTotal > 25 && (millis - lastMillis).count() > 250)) {
+					std::cerr << total << std::endl;
+					hyst.set(total);
+
+					if(hyst.isDown()) {
 						snd.play(0);
 						lastMillis = millis;
 					}
+//					if(lastTotal == -1 || (total - lastTotal > 25 && (millis - lastMillis).count() > 250)) {
+//						snd.play(0);
+//						lastMillis = millis;
+//					}
 					lastTotal = total;
 					TEXTURE_MTX.lock();
 					if(VIEWPORT.x_ >= TEXTURES[TEXTURE_IDX].cols) {
@@ -252,6 +261,10 @@ int main(int argc, char** argv) {
 
 	SDL_Event event;
 	cv::Mat* view = new cv::Mat(HEIGHT, WIDTH, CV_8UC4);
+	cv::Mat* last = new cv::Mat(HEIGHT, WIDTH, CV_8UC4);
+	cv::Mat* result = new cv::Mat(HEIGHT, WIDTH, CV_8UC4);
+
+	bool first = true;
 
 	while (!DONE) {
 		if (SDL_PollEvent(&event)) {
@@ -264,7 +277,15 @@ int main(int argc, char** argv) {
 		extractROI(TEXTURES[TEXTURE_IDX], *view);
 		TEXTURE_MTX.unlock();
 
-		canvas->draw(*view, MAGNIFICATION);
+		if(!first) {
+			blend(*view, *last, 0.8,*result);
+		} else {
+			view->copyTo(*result);
+			first = false;
+		}
+		canvas->draw(*result, MAGNIFICATION);
+		result->copyTo(*last);
+
 		std::this_thread::yield();
 		usleep(16667);
 	}

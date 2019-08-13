@@ -1,6 +1,6 @@
 TARGET := libcircle.so
 
-SRCS    := button.cpp  canvas.cpp  color.cpp  midikeyboard.cpp  midiwiimote.cpp  recorder.cpp  save_surf.cpp
+SRCS    := button.cpp  canvas.cpp  color.cpp  midikeyboard.cpp  midiwiimote.cpp  recorder.cpp  save_surf.cpp hysterisis.cpp
 
 #precompiled headers
 HEADERS := 
