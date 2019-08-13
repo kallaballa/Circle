@@ -102,6 +102,9 @@ src/video/video
 src/video/video.dep
 src/video/video.o
 src/lib/hysterisis.dep
+src/vu/vu.o
+src/vu/vu
+src/vu/vu.dep
 src/lib/hysterisis.hpp
 src/lib/hysterisis.o
 src/water/water
