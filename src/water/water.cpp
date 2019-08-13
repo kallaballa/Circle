@@ -57,22 +57,23 @@ void render(std::vector<double>& absSpectrum,
 		cv::Mat& target) {
 	cv::rectangle(target, cv::Point(0, 0), cv::Point(WIDTH,HEIGHT), {0,0,0}, CV_FILLED);
 	double max = 0;
-	for(size_t i = 1; i < absSpectrum.size(); ++i) {
+	for(size_t i = 0; i < absSpectrum.size(); ++i) {
 		max = std::max(absSpectrum[i], max);
 	}
 
 //	std::cerr << max << std::endl;
 	if(std::round(max) < 100)
 		return;
-	for(size_t i = 1; i < absSpectrum.size(); ++i) {
+	for(size_t i = 0; i < absSpectrum.size(); ++i) {
 		HSLColor hsl;
-		hsl.adjustHue(((double)absSpectrum[i] / 1024.0) * 360.0);
+		hsl.h_ = i / (double)absSpectrum.size() * 360.0;
 		hsl.s_ = 99;
-		hsl.l_ = 50;
+		hsl.l_ = 50 - (absSpectrum[i] * 50);
+
 		RGBColor rgb(hsl);
 		double w = WIDTH/((double)FFT_SIZE / 4);
 		if(absSpectrum[i] > 1)
-			cv::rectangle(target, cv::Point((i - 1) * w,0), cv::Point((i - 1) * w + w - 1,0), cv::Scalar(rgb.b_,rgb.g_,rgb.r_), CV_FILLED);
+			cv::rectangle(target, cv::Point((i - 1) * w,0), cv::Point((i - 1) * w + w - 1,HEIGHT), cv::Scalar(rgb.b_,rgb.g_,rgb.r_), CV_FILLED);
 	}
 	if(!last.empty()) {
 		last(cv::Rect(0,0, last.cols, last.rows - 1)).copyTo(target(cv::Rect(0,1,target.cols, target.rows - 1)));
@@ -129,7 +130,7 @@ int main(int argc, char** argv) {
 		}
 
 		if(!first) {
-			blend(*frameBuffer, *last, 0.1,*result);
+			blend(*frameBuffer, *last, 0.3,*result);
 		} else {
 			frameBuffer->copyTo(*result);
 			first = false;
