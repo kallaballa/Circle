@@ -88,6 +88,11 @@ void Canvas::draw(cv::Mat& m, const size_t& magnification, const size_t& offX, c
 			for (off_t k = 0; k < magnification; k++) {
 				for (off_t l = 0; l < magnification; l++) {
 					this->putpixel(offX + j * magnification + l, offY + i * magnification + k , m.at<int32_t>(i, j));
+					if(l == magnification - 1)
+						this->putpixel(offX + j * magnification + l, offY + i * magnification + k , 0);
+					if(k == magnification - 1)
+						this->putpixel(offX + j * magnification + l, offY + i * magnification + k , 0);
+
 				}
 			}
 		}
