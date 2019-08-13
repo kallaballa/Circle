@@ -61,9 +61,7 @@ void render(std::vector<double>& absSpectrum,
 	}
 	total /= 512;
 
-	std::cerr << total << std::endl;
-
-	cv::rectangle(target, cv::Point(WIDTH - total,HEIGHT / 2 - 1), cv::Point(total,HEIGHT / 2 + 1), cv::Scalar(0,0,255), CV_FILLED);
+	cv::rectangle(target, cv::Point(total,HEIGHT / 2 - 1), cv::Point(WIDTH - total,HEIGHT / 2 + 1), cv::Scalar(0,0,255), CV_FILLED);
 }
 int main(int argc, char** argv) {
 	if (argc != 1) {
