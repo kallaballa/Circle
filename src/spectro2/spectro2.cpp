@@ -73,7 +73,7 @@ void render(std::vector<double>& absSpectrum,
 		RGBColor rgb(hsl);
 		double w = WIDTH/((double)FFT_SIZE / 4);
 		if(absSpectrum[i] > 1)
-			cv::rectangle(target, cv::Point((i - 1) * w,0), cv::Point((i - 1) * w + w - 1,absSpectrum[i] + 1), cv::Scalar(rgb.b_,rgb.g_,rgb.r_), CV_FILLED);
+			cv::rectangle(target, cv::Point((i - 1) * w,0), cv::Point((i - 1) * w + w - 1,HEIGHT), cv::Scalar(rgb.b_,rgb.g_,rgb.r_), CV_FILLED);
 	}
 }
 int main(int argc, char** argv) {

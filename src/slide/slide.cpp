@@ -222,17 +222,13 @@ int main(int argc, char** argv) {
 					milliseconds millis = duration_cast< milliseconds >(
 							system_clock::now().time_since_epoch()
 					);
-					std::cerr << total << std::endl;
 					hyst.set(total);
 
-					if(hyst.isDown()) {
+					if(lastTotal != -1 && hyst.isDown() && (millis - lastMillis).count() > 250) {
 						snd.play(0);
 						lastMillis = millis;
 					}
-//					if(lastTotal == -1 || (total - lastTotal > 25 && (millis - lastMillis).count() > 250)) {
-//						snd.play(0);
-//						lastMillis = millis;
-//					}
+
 					lastTotal = total;
 					TEXTURE_MTX.lock();
 					if(VIEWPORT.x_ >= TEXTURES[TEXTURE_IDX].cols) {

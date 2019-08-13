@@ -55,26 +55,15 @@ void blend(const cv::Mat& src1, const cv::Mat& src2, const double alpha,
 void render(std::vector<double>& absSpectrum,
 		cv::Mat& target) {
 	cv::rectangle(target, cv::Point(0, 0), cv::Point(WIDTH,HEIGHT), {0,0,0}, CV_FILLED);
-	double max = 0;
-	for(size_t i = 0; i < absSpectrum.size(); ++i) {
-		max = std::max(absSpectrum[i], max);
+	double total = 0;
+	for(size_t i = 1; i < absSpectrum.size(); ++i) {
+		total += absSpectrum[i];
 	}
-	for(size_t i = 0; i < absSpectrum.size(); ++i) {
-		absSpectrum[i] = absSpectrum[i] / 1024 * HEIGHT;
-	}
-//	std::cerr << max << std::endl;
-	if(std::round(max) < 100)
-		return;
-	for(size_t i = 0; i < absSpectrum.size(); ++i) {
-		HSLColor hsl;
-		hsl.h_ = i / (double)absSpectrum.size() * 360.0;
-		hsl.s_ = 99;
-		hsl.l_ = 50;
-		RGBColor rgb(hsl);
-		double w = WIDTH/((double)FFT_SIZE / 4);
-		if(absSpectrum[i] > 1)
-			cv::rectangle(target, cv::Point((i - 1) * w,0), cv::Point((i - 1) * w + w - 1,absSpectrum[i] + 1), cv::Scalar(rgb.b_,rgb.g_,rgb.r_), CV_FILLED);
-	}
+	total /= 512;
+
+	std::cerr << total << std::endl;
+
+	cv::rectangle(target, cv::Point(WIDTH - total,HEIGHT / 2 - 1), cv::Point(total,HEIGHT / 2 + 1), cv::Scalar(0,0,255), CV_FILLED);
 }
 int main(int argc, char** argv) {
 	if (argc != 1) {
