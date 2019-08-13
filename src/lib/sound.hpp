@@ -19,7 +19,7 @@ private:
 public:
 	Sound() {
 		//Initialize SDL_mixer
-		if (Mix_OpenAudio(44100, AUDIO_U8, 1, 512) == -1) {
+		if (Mix_OpenAudio(44100, AUDIO_U8, 1, 128) == -1) {
 			std::cerr << "Error opening audio device" << std::endl;
 			throw std::exception();
 		}
