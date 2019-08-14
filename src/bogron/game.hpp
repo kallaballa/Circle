@@ -16,6 +16,8 @@ struct Player {
 	std::pair<off_t, off_t> pos_;
 	size_t lifes_;
 	milliseconds lastMove_;
+	bool hasBomb_ = false;
+	bool hasNuke_ = false;
 
 	Player(off64_t x, off64_t y, size_t lifes) : pos_(x,y), lifes_(lifes) {
 	}
@@ -58,26 +60,7 @@ public:
 					system_clock::now().time_since_epoch());
 	}
 
-	void move(Player& p, const Direction& d) {
-		auto e = epoch();
-//		if(e.count() - 100 > player1_.lastMove_.count()) {
-			switch(d) {
-			case LEFT:
-				p.pos_.first = std::max((off_t)0, player1_.pos_.first - 1);
-				break;
-			case RIGHT:
-				p.pos_.first = std::min((off_t)width_, player1_.pos_.first + 1);
-				break;
-			case UP:
-				p.pos_.second = std::max((off_t)0, player1_.pos_.second - 1);
-				break;
-			case DOWN:
-				p.pos_.second = std::min((off_t)height_, player1_.pos_.second + 1);
-				break;
-			}
-			p.lastMove_ = e;
-//		}
-	}
+	void move(Player& p, const Direction& d);
 
 	void move1(Direction d) {
 		move(player1_, d);

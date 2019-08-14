@@ -39,3 +39,52 @@ Player Game::player1() {
 Player Game::player2() {
 	return player2_;
 }
+
+void Game::move(Player& p, const Direction& d) {
+	auto e = epoch();
+	auto newPos = p.pos_;
+		switch(d) {
+		case LEFT:
+			newPos.first = std::max((off_t)0, player1_.pos_.first - 1);
+			break;
+		case RIGHT:
+			newPos.first = std::min((off_t)width_ - 1, player1_.pos_.first + 1);
+			break;
+		case UP:
+			newPos.second = std::max((off_t)0, player1_.pos_.second - 1);
+			break;
+		case DOWN:
+			newPos.second = std::min((off_t)height_ - 1, player1_.pos_.second + 1);
+			break;
+		}
+
+		if((newPos.first == player1_.pos_.first && newPos.second == player1_.pos_.second) ||
+				(newPos.first == player2_.pos_.first && newPos.second == player2_.pos_.second))
+			return; //players can't move over each other so we ignore crashing inputs
+
+		auto& cell = grid_[newPos.second][newPos.first];
+		switch(cell) {
+		case Object::MINE_:
+			cell = Object::BLANK_;
+			p.lifes_--;
+			break;
+		case Object::BOMB_:
+			cell = Object::BLANK_;
+			p.hasNuke_ = false;
+			p.hasBomb_ = true;
+			break;
+		case Object::NUKE_:
+			cell = Object::BLANK_;
+			p.hasNuke_ = true;
+			p.hasBomb_ = false;
+			break;
+		case Object::EXPLOSION_:
+			cell = Object::BLANK_;
+			p.lifes_--;
+			break;
+		default:
+			break;
+		}
+		p.pos_ = newPos;
+		p.lastMove_ = e;
+}

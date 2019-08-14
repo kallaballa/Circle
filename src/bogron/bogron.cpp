@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <vector>
 #include <iostream>
+#include <cstdint>
 #include <mutex>
 #include <limits>
 #include <thread>
@@ -26,6 +27,36 @@ static void FINISH(int ignore) {
 	DONE = true;
 }
 
+void overlayImage(cv::Mat* src, cv::Mat* overlay, const cv::Point& location)
+{
+	using namespace cv;
+	using namespace std;
+    for (int y = max(location.y, 0); y < src->rows; ++y)
+    {
+        int fY = y - location.y;
+
+        if (fY >= overlay->rows)
+            break;
+
+        for (int x = max(location.x, 0); x < src->cols; ++x)
+        {
+            int fX = x - location.x;
+
+            if (fX >= overlay->cols)
+                break;
+
+            double opacity = ((double)overlay->data[fY * overlay->step + fX * overlay->channels() + 3]) / 255;
+
+            for (int c = 0; opacity > 0 && c < src->channels(); ++c)
+            {
+                unsigned char overlayPx = overlay->data[fY * overlay->step + fX * overlay->channels() + c];
+                unsigned char srcPx = src->data[y * src->step + x * src->channels() + c];
+                src->data[y * src->step + src->channels() * x + c] = srcPx * (1. - opacity) + overlayPx * opacity;
+            }
+        }
+    }
+}
+
 void blend(const cv::Mat& src1, const cv::Mat& src2, const double alpha,
 		const cv::Mat& dst) {
 	using namespace cv;
@@ -35,7 +66,65 @@ void blend(const cv::Mat& src1, const cv::Mat& src2, const double alpha,
 	addWeighted(src1, alpha, src2, beta, 0.0, dst);
 }
 
-void render() {
+void renderPlayer(cv::Mat* frameBuffer, const Player& p, const RGBColor& color) {
+	cv::Mat layer(HEIGHT, WIDTH, CV_8UC4, cv::Scalar(0,0,0,0));
+	cv::Mat copy(HEIGHT, WIDTH, CV_8UC4);
+
+	frameBuffer->copyTo(copy);
+	HSLColor hsl2(color);
+	hsl2.l_ = 70 / (6 - p.lifes_);
+	hsl2.s_ = 99;
+	RGBColor rgb2(hsl2);
+	layer.at<uint8_t>(p.pos_.second, p.pos_.first * 4) = rgb2.b_;
+	layer.at<uint8_t>(p.pos_.second, p.pos_.first * 4 + 1) = rgb2.g_;
+	layer.at<uint8_t>(p.pos_.second, p.pos_.first * 4 + 2) = rgb2.r_;
+	layer.at<uint8_t>(p.pos_.second, p.pos_.first * 4 + 3) = 0xFF;
+
+	if(p.hasBomb_ || p.hasNuke_) {
+		RGBColor haloColor(0,0,0);
+		if(p.hasBomb_)
+			haloColor = Palette::BOMB_;
+		else
+			haloColor = Palette::NUKE_;
+
+		off_t y = p.pos_.second;
+		off_t x = p.pos_.first * 4 + 4;
+		if(x < WIDTH * 4) {
+			layer.at<uint8_t>(y, x) = haloColor.b_;
+			layer.at<uint8_t>(y, x + 1) = haloColor.g_;
+			layer.at<uint8_t>(y, x + 2) = haloColor.r_;
+			layer.at<uint8_t>(y, x + 3) = 0x7F;
+		}
+
+		y = p.pos_.second;
+		x = p.pos_.first * 4 - 4;
+		if(x > 0) {
+			layer.at<uint8_t>(y, x) = haloColor.b_;
+			layer.at<uint8_t>(y, x + 1) = haloColor.g_;
+			layer.at<uint8_t>(y, x + 2) = haloColor.r_;
+			layer.at<uint8_t>(y, x + 3) = 0x7F;
+		}
+
+		y = p.pos_.second + 1;
+		x = p.pos_.first * 4;
+		if(y < HEIGHT) {
+			layer.at<uint8_t>(y, x) = haloColor.b_;
+			layer.at<uint8_t>(y, x + 1) = haloColor.g_;
+			layer.at<uint8_t>(y, x + 2) = haloColor.r_;
+			layer.at<uint8_t>(y, x + 3) = 0x7F;
+		}
+
+		y = p.pos_.second - 1;
+		x = p.pos_.first * 4;
+		if(y > 0) {
+			layer.at<uint8_t>(y, x) = haloColor.b_;
+			layer.at<uint8_t>(y, x + 1) = haloColor.g_;
+			layer.at<uint8_t>(y, x + 2) = haloColor.r_;
+			layer.at<uint8_t>(y, x + 3) = 0x7F;
+		}
+	}
+	overlayImage(frameBuffer, &layer, cv::Point{0,0});
+//	blend(layer, copy, 0.5, *frameBuffer);
 }
 
 int main(int argc, char** argv) {
@@ -78,13 +167,15 @@ int main(int argc, char** argv) {
 					continue;
 				}
 				if(ev.btn_left_.press_) {
-					std::cerr << "LEFT" << std::endl;
 					game.move1(Game::Direction::DOWN);
-				} else if(ev.btn_right_.press_) {
+				}
+				if(ev.btn_right_.press_) {
 					game.move1(Game::Direction::UP);
-				} else if(ev.btn_up_.press_) {
+				}
+				if(ev.btn_up_.press_) {
 					game.move1(Game::Direction::LEFT);
-				} else if(ev.btn_down_.press_) {
+				}
+				if(ev.btn_down_.press_) {
 					game.move1(Game::Direction::RIGHT);
 				}
 				last1 = game.epoch();
@@ -95,11 +186,14 @@ int main(int argc, char** argv) {
 				}
 				if(ev.btn_left_.press_) {
 					game.move2(Game::Direction::DOWN);
-				} else if(ev.btn_right_.press_) {
+				}
+				if(ev.btn_right_.press_) {
 					game.move2(Game::Direction::UP);
-				} else if(ev.btn_up_.press_) {
+				}
+				if(ev.btn_up_.press_) {
 					game.move2(Game::Direction::LEFT);
-				} else if(ev.btn_down_.press_) {
+				}
+				if(ev.btn_down_.press_) {
 					game.move2(Game::Direction::RIGHT);
 				}
 				last2 = game.epoch();
@@ -156,19 +250,15 @@ int main(int argc, char** argv) {
 				frameBuffer->at<uint8_t>(r, c * 4) = color.b_;
 				frameBuffer->at<uint8_t>(r, c * 4 + 1) = color.g_;
 				frameBuffer->at<uint8_t>(r, c * 4 + 2) = color.r_;
-				frameBuffer->at<uint8_t>(r, c * 4 + 3) = 0xff;
+				if(color.r_ == Palette::BLANK_.r_ && color.g_ == Palette::BLANK_.g_ && color.b_ == Palette::BLANK_.b_)
+					frameBuffer->at<uint8_t>(r, c * 4 + 3) = 0x00;
+				else
+					frameBuffer->at<uint8_t>(r, c * 4 + 3) = 0xff;
 			}
 		}
 
-		frameBuffer->at<uint8_t>(p1.pos_.second, p1.pos_.first * 4) = Palette::PLAYER_1.b_;
-		frameBuffer->at<uint8_t>(p1.pos_.second, p1.pos_.first * 4 + 1) = Palette::PLAYER_1.g_;
-		frameBuffer->at<uint8_t>(p1.pos_.second, p1.pos_.first * 4 + 2) = Palette::PLAYER_1.r_;
-		frameBuffer->at<uint8_t>(p1.pos_.second, p1.pos_.first * 4 + 3) = 0xff;
-
-		frameBuffer->at<uint8_t>(p2.pos_.second, p2.pos_.first * 4) = Palette::PLAYER_2.b_;
-		frameBuffer->at<uint8_t>(p2.pos_.second, p2.pos_.first * 4 + 1) = Palette::PLAYER_2.g_;
-		frameBuffer->at<uint8_t>(p2.pos_.second, p2.pos_.first * 4 + 2) = Palette::PLAYER_2.r_;
-		frameBuffer->at<uint8_t>(p2.pos_.second, p2.pos_.first * 4 + 3) = 0xff;
+		renderPlayer(frameBuffer, p1, Palette::PLAYER_1);
+		renderPlayer(frameBuffer, p2, Palette::PLAYER_2);
 
 		if (!first) {
 			blend(*frameBuffer, *last, 0.3, *result);
