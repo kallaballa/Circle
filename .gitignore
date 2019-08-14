@@ -105,7 +105,6 @@ src/lib/hysterisis.dep
 src/vu/vu.o
 src/vu/vu
 src/vu/vu.dep
-src/lib/hysterisis.hpp
 src/lib/hysterisis.o
 src/water/water
 src/water/water.dep
