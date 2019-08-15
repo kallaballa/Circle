@@ -44,7 +44,7 @@ private:
 	std::mutex gridMtx_;
 	Spawn spawn_;
 	long speed_ = 1000000;
-
+	void checkPlayer(Player& pos);
 public:
 	Game(size_t width, size_t height);
 	virtual ~Game();
@@ -54,6 +54,7 @@ public:
 	grid_t grid();
 	Player player1();
 	Player player2();
+
 
 	milliseconds epoch() {
 		return duration_cast<milliseconds>(

@@ -17,6 +17,33 @@ void Game::unlock() {
 	gridMtx_.unlock();
 }
 
+void Game::checkPlayer(Player& p) {
+	auto& cell = grid_[p.pos_.second][p.pos_.first];
+	switch(cell) {
+
+	case Object::MINE_:
+		cell = Object::BLANK_;
+		p.lifes_--;
+		break;
+	case Object::BOMB_:
+		cell = Object::BLANK_;
+		p.hasNuke_ = false;
+		p.hasBomb_ = true;
+		break;
+	case Object::NUKE_:
+		cell = Object::BLANK_;
+		p.hasNuke_ = true;
+		p.hasBomb_ = false;
+		break;
+	case Object::EXPLOSION_:
+		cell = Object::BLANK_;
+		p.lifes_--;
+		break;
+	default:
+		break;
+	}
+}
+
 void Game::step() {
 //	grid_t old_grid = grid_;
 	column_t back = grid_.back();
@@ -26,6 +53,8 @@ void Game::step() {
 	}
 	grid_.pop_back();
 	grid_.push_front(front);
+	this->checkPlayer(player1_);
+	this->checkPlayer(player2_);
 }
 
 Game::grid_t Game::grid() {
@@ -62,29 +91,7 @@ void Game::move(Player& p, const Direction& d) {
 				(newPos.first == player2_.pos_.first && newPos.second == player2_.pos_.second))
 			return; //players can't move over each other so we ignore crashing inputs
 
-		auto& cell = grid_[newPos.second][newPos.first];
-		switch(cell) {
-		case Object::MINE_:
-			cell = Object::BLANK_;
-			p.lifes_--;
-			break;
-		case Object::BOMB_:
-			cell = Object::BLANK_;
-			p.hasNuke_ = false;
-			p.hasBomb_ = true;
-			break;
-		case Object::NUKE_:
-			cell = Object::BLANK_;
-			p.hasNuke_ = true;
-			p.hasBomb_ = false;
-			break;
-		case Object::EXPLOSION_:
-			cell = Object::BLANK_;
-			p.lifes_--;
-			break;
-		default:
-			break;
-		}
+		this->checkPlayer(p);
 		p.pos_ = newPos;
 		p.lastMove_ = e;
 }
