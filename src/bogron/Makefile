@@ -1,6 +1,6 @@
 TARGET := bogron
 
-SRCS    := bogron.cpp palette.cpp game.cpp spawn.cpp
+SRCS    := bogron.cpp palette.cpp game.cpp spawn.cpp renderer.cpp effects.cpp font.cpp
 
 #precompiled headers
 HEADERS := 

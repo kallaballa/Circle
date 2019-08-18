@@ -9,6 +9,7 @@
 #include <chrono>
 #include <algorithm>
 #include "spawn.hpp"
+#include "../lib/sound.hpp"
 
 using namespace std::chrono;
 
@@ -43,6 +44,7 @@ private:
 	grid_t grid_;
 	std::mutex gridMtx_;
 	Spawn spawn_;
+	Sound snd_;
 	long speed_ = 1000000;
 	void checkPlayer(Player& pos);
 public:
@@ -51,7 +53,11 @@ public:
 	void lock();
 	void unlock();
 	void step();
-	grid_t grid();
+	void explode(Player& p);
+	void explode1();
+	void explode2();
+
+	grid_t& grid();
 	Player player1();
 	Player player2();
 

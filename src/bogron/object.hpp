@@ -10,7 +10,9 @@ enum Object {
 	BOMB_ = 3,
 	NUKE_ = 4,
 	BLANK_ = 5,
-	EXPLOSION_ = 6
+	EXPLOSION_BOMB_ = 6,
+	EXPLOSION_NUKE_ = 7,
+	BLAST_= 8
 };
 
 #endif /* SRC_BOGRON_OBJECT_HPP_ */

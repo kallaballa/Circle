@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
 	Canvas* canvas = new Canvas(WIDTH * MAGNIFICATION, HEIGHT * MAGNIFICATION, false);
 	MidiWiimote midi(0);
 	Sound snd;
-	snd.load("swing.wav");
+	snd.loadFx("swing.wav");
 	std::thread midiThread([&]() {
 		WMEvent ev;
 		while ( !DONE ) {

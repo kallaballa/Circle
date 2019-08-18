@@ -10,7 +10,7 @@ struct Palette {
 	static RGBColor BOMB_;
 	static RGBColor NUKE_;
 	static RGBColor BLANK_;
-	static RGBColor EXPLOSION_;
+	static RGBColor BLAST_;
 };
 
 

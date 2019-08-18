@@ -1,7 +1,7 @@
 CXX      := g++
 CXXFLAGS :=  -std=c++17 -pthread -fno-strict-aliasing -std=c++1y -pedantic -Wall `pkg-config --cflags cairo x11 opencv sdl SDL_gfx SDL_image SDL_mixer`
 LDFLAGS  := -L/opt/local/lib
-LIBS     := -lm `pkg-config --libs x11 opencv sdl SDL_gfx SDL_image SDL_mixer libpng16 alsa rtmidi` -lboost_serialization
+LIBS     := -lm `pkg-config --libs x11 opencv sdl SDL_gfx SDL_image SDL_mixer SDL_ttf libpng16 alsa rtmidi` -lboost_serialization
 .PHONY: all release debian-release info debug asan clean debian-clean distclean 
 DESTDIR := /
 PREFIX := /usr/local
