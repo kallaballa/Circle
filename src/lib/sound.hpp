@@ -13,7 +13,7 @@ private:
 public:
 	Sound() {
 		//Initialize SDL_mixer
-		if (Mix_OpenAudio(44100, AUDIO_U16, 1, 256) == -1) {
+		if (Mix_OpenAudio(44100, AUDIO_U16, 1, 512) == -1) {
 			std::cerr << "Error opening audio device" << std::endl;
 			throw std::exception();
 		}
@@ -45,8 +45,6 @@ public:
 	}
 
 	void play(size_t idx) {
-		if (Mix_Playing(1) != 0)
-			return;
 		if ( Mix_PlayChannel( -1, chunks_[idx], 0 ) == -1) {
 			throw std::exception();
 		}

@@ -8,6 +8,7 @@ struct Palette {
 	static RGBColor PLAYER_2;
 	static RGBColor MINE_;
 	static RGBColor BOMB_;
+	static RGBColor SHIELD_;
 	static RGBColor NUKE_;
 	static RGBColor BLANK_;
 	static RGBColor BLAST_;

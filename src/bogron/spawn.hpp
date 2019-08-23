@@ -14,8 +14,9 @@ public:
 	static float BOMB_;
 	static float NUKE_;
 	static float BLANK_;
+	static float SHIELD_;
 
-	Spawn(): rd_(), mt_(rd_()), dist_(0, MINE_ + BOMB_ + NUKE_ + BLANK_) {
+	Spawn(): rd_(), mt_(rd_()), dist_(0, MINE_ + BOMB_ + SHIELD_ + NUKE_ + BLANK_) {
 	}
 
 	Object roulette() {
@@ -24,6 +25,8 @@ public:
 			return Object::NUKE_;
 		} else if(r < BOMB_) {
 			return Object::BOMB_;
+		} else if(r < SHIELD_) {
+			return Object::SHIELD_;
 		} else if(r < MINE_) {
 			return Object::MINE_;
 		} if(r < BLANK_) {

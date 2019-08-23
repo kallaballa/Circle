@@ -49,122 +49,164 @@ int main(int argc, char** argv) {
 	}
 
 	DONE = false;
-
 	signal(SIGINT, FINISH);
 
-	MidiWiimote midi(0);
 	Canvas* canvas = new Canvas(WIDTH, HEIGHT, MAGNIFICATION, false);
+	Renderer::init(WIDTH, HEIGHT);
+	Renderer& r = Renderer::getInstance();
+
 	Game game(WIDTH / 1.3, HEIGHT);
-	game.setSpeed(1000);
+	MidiWiimote midi(0);
 
-	std::thread gameThread([&]() {
-		while(!DONE) {
+	std::thread canvasThread([&]() {
+		cv::Mat* last = new cv::Mat(HEIGHT, WIDTH, CV_8UC4, 0.0);
+		cv::Mat* result = new cv::Mat(HEIGHT, WIDTH, CV_8UC4, 0.0);
+		bool first = true;
+		while (!DONE) {
 			game.lock();
-			game.step();
-			game.unlock();
-			std::this_thread::yield();
-			usleep(1000000);
-		}
-	});
-
-	Renderer r(WIDTH / 1.3, HEIGHT);
-	std::thread rendererThread([&]() {
-		while(!DONE) {
-			game.lock();
-			r.renderMap(game.grid(), game.player1(), game.player2());
+			if (!first) {
+				blend(*r.getFrameBuffer(), *last, 0.3, *result);
+			} else {
+				r.getFrameBuffer()->copyTo(*result);
+				first = false;
+			}
+			canvas->draw(*result);
+			result->copyTo(*last);
 			game.unlock();
 			std::this_thread::yield();
 			usleep(16667);
 		}
 	});
 
-	std::thread midiThread([&]() {
-		WMEvent ev;
-		milliseconds last1 = game.epoch();
-		milliseconds last2 = game.epoch();
-		milliseconds now;
-		while(!DONE) {
-			ev = midi.receive();
-			now = game.epoch();
-			game.lock();
-			if(ev.ctrlNr_ == 0) {
-				if(last1.count() + 100 > now.count()) {
-					game.unlock();
-					continue;
-				}
-
-				if(ev.btn_2_.press_) {
-					game.explode1();
-				}
-				if(ev.btn_left_.press_) {
-					game.move1(Game::Direction::DOWN);
-				}
-				if(ev.btn_left_.press_) {
-					game.move1(Game::Direction::DOWN);
-				}
-				if(ev.btn_right_.press_) {
-					game.move1(Game::Direction::UP);
-				}
-				if(ev.btn_up_.press_) {
-					game.move1(Game::Direction::LEFT);
-				}
-				if(ev.btn_down_.press_) {
-					game.move1(Game::Direction::RIGHT);
-				}
-				last1 = game.epoch();
-			} else if(ev.ctrlNr_ == 1) {
-				if(last2.count() + 100 > now.count()) {
-					game.unlock();
-					continue;
-				}
-				if(ev.btn_2_.press_) {
-					game.explode2();
-				}
-				if(ev.btn_left_.press_) {
-					game.move2(Game::Direction::DOWN);
-				}
-				if(ev.btn_left_.press_) {
-					game.move2(Game::Direction::DOWN);
-				}
-				if(ev.btn_right_.press_) {
-					game.move2(Game::Direction::UP);
-				}
-				if(ev.btn_up_.press_) {
-					game.move2(Game::Direction::LEFT);
-				}
-				if(ev.btn_down_.press_) {
-					game.move2(Game::Direction::RIGHT);
-				}
-				last2 = game.epoch();
-			}
-			game.unlock();
-			std::this_thread::yield();
-		}
-	});
-
-	SDL_Event event;
-	cv::Mat* last = new cv::Mat(HEIGHT, WIDTH, CV_8UC4, 0.0);
-	cv::Mat* result = new cv::Mat(HEIGHT, WIDTH, CV_8UC4, 0.0);
-	bool first = true;
 	while (!DONE) {
-		if (SDL_PollEvent(&event)) {
-			if (event.type == SDL_QUIT) {
-				exit(0);
+		game.reset();
+		std::thread gameThread([&]() {
+			while(!DONE) {
+				game.lock();
+				if(!game.isOver())
+					game.step();
+				else {
+					game.unlock();
+					break;
+				}
+				game.unlock();
+				std::this_thread::yield();
+				usleep(1000000);
 			}
+		});
+
+		std::thread rendererThread([&]() {
+			while(!DONE) {
+				game.lock();
+				if(!game.isOver()) {
+					r.renderGame(game.grid(), game.player1(), game.player2());
+				}
+				else {
+					game.unlock();
+					break;
+				}
+
+				game.unlock();
+				std::this_thread::yield();
+				usleep(16667);
+			}
+		});
+
+		std::thread midiThread([&]() {
+			WMEvent ev;
+			milliseconds last1 = game.epoch();
+			milliseconds last2 = game.epoch();
+			milliseconds now;
+			while(!DONE) {
+				ev = midi.receive();
+				now = game.epoch();
+				game.lock();
+
+				if(game.isOver()) {
+					r.renderGameOver(game);
+					if(ev.btn_home_.press_) {
+						game.unlock();
+						break;
+					} else {
+						game.unlock();
+						continue;
+					}
+				}
+
+				if(ev.ctrlNr_ == 0) {
+					if(last1.count() + 100 > now.count()) {
+						game.unlock();
+						continue;
+					}
+
+					if(ev.btn_2_.press_) {
+						game.explode1();
+					}
+					if(ev.btn_left_.press_) {
+						game.move1(Game::Direction::DOWN);
+					}
+					if(ev.btn_left_.press_) {
+						game.move1(Game::Direction::DOWN);
+					}
+					if(ev.btn_right_.press_) {
+						game.move1(Game::Direction::UP);
+					}
+					if(ev.btn_up_.press_) {
+						game.move1(Game::Direction::LEFT);
+					}
+					if(ev.btn_down_.press_) {
+						game.move1(Game::Direction::RIGHT);
+					}
+					last1 = game.epoch();
+				} else if(ev.ctrlNr_ == 1) {
+					if(last2.count() + 100 > now.count()) {
+						game.unlock();
+						continue;
+					}
+					if(ev.btn_2_.press_) {
+						game.explode2();
+					}
+					if(ev.btn_left_.press_) {
+						game.move2(Game::Direction::DOWN);
+					}
+					if(ev.btn_left_.press_) {
+						game.move2(Game::Direction::DOWN);
+					}
+					if(ev.btn_right_.press_) {
+						game.move2(Game::Direction::UP);
+					}
+					if(ev.btn_up_.press_) {
+						game.move2(Game::Direction::LEFT);
+					}
+					if(ev.btn_down_.press_) {
+						game.move2(Game::Direction::RIGHT);
+					}
+					last2 = game.epoch();
+				}
+				game.unlock();
+				std::this_thread::yield();
+			}
+		});
+
+		SDL_Event event;
+
+		while (!DONE) {
+			if(game.isOver())
+				break;
+
+			if (SDL_PollEvent(&event)) {
+				if (event.type == SDL_QUIT) {
+					exit(0);
+				}
+			}
+
+			std::this_thread::yield();
+			usleep(16667);
 		}
 
-		if (!first) {
-			blend(*r.getFrameBuffer(), *last, 0.3, *result);
-		} else {
-			r.getFrameBuffer()->copyTo(*result);
-			first = false;
-		}
-		canvas->draw(*result);
-		result->copyTo(*last);
-
-		std::this_thread::yield();
-		usleep(16667);
+		gameThread.join();
+		rendererThread.join();
+		midiThread.join();
 	}
-
 	return 0;
 }
