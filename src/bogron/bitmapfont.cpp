@@ -1,15 +1,26 @@
-#include "font.hpp"
+#include <bogron/bitmapfont.hpp>
 #include <exception>
 
-Font::Font() {
+BitmapFont::BitmapFont() {
 
 }
 
-Font::~Font() {
+BitmapFont::~BitmapFont() {
 
 }
 
-void Font::drawtext(cv::Mat& target, size_t x, size_t y, const string& text, RGBColor fg)
+size_t BitmapFont::calcWidth(const string& text) {
+	using namespace cv;
+	size_t width = 0;
+
+	for (const auto& c : text) {
+		std::vector<uint8_t> letter = FONT[c];
+		width += letter.size() + 1;
+	}
+	return width;
+}
+
+void BitmapFont::drawtext(cv::Mat& target, size_t x, size_t y, const string& text, RGBColor fg)
 {
 	using namespace cv;
 	size_t offset = 0;

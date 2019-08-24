@@ -1,3 +1,4 @@
+#include <bogron/bitmapfont.hpp>
 #include <unistd.h>
 #include <vector>
 #include <iostream>
@@ -16,7 +17,6 @@
 #include "game.hpp"
 #include "palette.hpp"
 #include "renderer.hpp"
-#include "font.hpp"
 
 
 constexpr off_t WIDTH = 100;
@@ -52,6 +52,32 @@ int main(int argc, char** argv) {
 	signal(SIGINT, FINISH);
 
 	Canvas* canvas = new Canvas(WIDTH, HEIGHT, MAGNIFICATION, false);
+	BitmapFont f;
+	cv::Mat* introFrame = new cv::Mat(HEIGHT, WIDTH, CV_8UC4, 0.0);
+	HSLColor hsl(0,0,0);
+
+	for(size_t i = 0; i < 50; ++i) {
+		hsl.l_ = i * 2;
+		f.drawtext(*introFrame,0, (WIDTH / 2) - (f.calcWidth("LET") / 2), "LET", RGBColor(hsl));
+		canvas->draw(*introFrame, 0,0);
+		usleep(16667);
+	}
+	(*introFrame) *= 0;
+	for(size_t i = 0; i < 50; ++i) {
+		hsl.l_ = i * 2;
+		f.drawtext(*introFrame,0,(WIDTH / 2) - (f.calcWidth("THE BATTLE") / 2),"THE BATTLE", RGBColor(hsl));
+		canvas->draw(*introFrame, 0,0);
+		usleep(16667);
+	}
+	(*introFrame) *= 0;
+
+	for(size_t i = 0; i < 50; ++i) {
+		hsl.l_ = i * 2;
+		f.drawtext(*introFrame,0,(WIDTH / 2) - (f.calcWidth("BEGIN") / 2),"BEGIN", RGBColor(hsl));
+		canvas->draw(*introFrame, 0,0);
+		usleep(16667);
+	}
+
 	Renderer::init(WIDTH, HEIGHT);
 	Renderer& r = Renderer::getInstance();
 

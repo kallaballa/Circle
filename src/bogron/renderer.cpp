@@ -1,5 +1,5 @@
+#include <bogron/bitmapfont.hpp>
 #include "renderer.hpp"
-#include "font.hpp"
 
 Renderer* Renderer::instance_ = nullptr;
 
@@ -209,7 +209,7 @@ void Renderer::renderGame(Game::grid_t& grid, Player& p1, Player& p2) {
 	renderPlayer(p1, Palette::PLAYER_1, diff2);
 	renderPlayer(p2, Palette::PLAYER_2, diff2);
 	renderAnimations(diff2);
-	Font f;
+	BitmapFont f;
 	cv::rectangle(*frameBuffer_, cv::Rect(0,0,13,height_), cv::Scalar(0x70,0x70,0x70), -1);
 	cv::rectangle(*frameBuffer_, cv::Rect(diff2 + grid.front().size(),0,diff2 + grid.front().size() + 13,height_), cv::Scalar(0x70,0x70,0x70), -1);
 	f.drawtext(*frameBuffer_, 0,1,(char)0x03 + std::to_string(p1.lifes()), Palette::PLAYER_1);
@@ -225,6 +225,6 @@ void Renderer::renderGameOver(Game& game) {
 		msg = "Player 1 wins!";
 
 	cv::rectangle(*frameBuffer_, cv::Rect(0,0,width_,height_), cv::Scalar(0x70,0x70,0x70), -1);
-	Font f;
+	BitmapFont f;
 	f.drawtext(*frameBuffer_, 0, diff2 + 10 ,msg, RGBColor(255,0,0));
 }

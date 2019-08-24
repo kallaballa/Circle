@@ -5,15 +5,15 @@
  *      Author: elchaschab
  */
 
-#ifndef SRC_BOGRON_FONT_HPP_
-#define SRC_BOGRON_FONT_HPP_
+#ifndef SRC_BOGRON_BITMAPFONT_HPP_
+#define SRC_BOGRON_BITMAPFONT_HPP_
 
 #include "../lib/color.hpp"
 
 #include <string>
 #include <opencv2/opencv.hpp>
 
-class Font {
+class BitmapFont {
 //	static unsigned char DIGITS_SMALL[] = {
 //	    0x1F, 0x11, 0x1F,   // 0
 //	    0x12, 0x1F, 0x10,   // 1
@@ -159,8 +159,9 @@ class Font {
 		,{0x10, 0x08, 0x10, 0x20, 0x10}  // ~
 	};
 public:
-	Font();
-	virtual ~Font();
+	BitmapFont();
+	virtual ~BitmapFont();
+	size_t calcWidth(const string& text);
 	void drawtext(cv::Mat& target, size_t x, size_t y, const string& text, RGBColor fg);
 };
-#endif /* SRC_BOGRON_FONT_HPP_ */
+#endif /* SRC_BOGRON_BITMAPFONT_HPP_ */
