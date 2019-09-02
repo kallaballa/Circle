@@ -3,6 +3,7 @@
 #include <SDL/SDL_image.h>
 #include <iostream>
 #include "save_surf.hpp"
+#include "color.hpp"
 
 Canvas::Canvas(size_t width, size_t height, size_t magnification, bool offscreen) :
   width_(width), height_(height), magnification_(magnification), screen_(NULL), offscreen_(offscreen) {
@@ -31,6 +32,11 @@ void Canvas::fillRectangle(Sint16 x, Sint16 y, Sint16 w, Sint16 h, Uint8 r, Uint
     filledPolygonRGBA(screen_,xv,yv,4,r,g,b,a);
 }
 
+
+void Canvas::fillCircle(Sint16 x, Sint16 y, Sint16 r, Uint16 red, Uint16 green, Uint16 blue) {
+	RGBColor rgb(red, green, blue);
+  filledCircleColor(screen_,x, y, r, rgb.val());
+}
 
 void Canvas::update() {
   if(!offscreen_)
@@ -87,7 +93,7 @@ void Canvas::draw(cv::Mat& m, const size_t& offX, const size_t& offY) {
 				continue;
 			for (off_t k = 0; k < (off_t)magnification_; k++) {
 				for (off_t l = 0; l < (off_t)magnification_; l++) {
-					this->putpixel((diff * magnification_) + offX + j * magnification_ + l, offY + i * magnification_ + k , m.at<int32_t>(i, j));
+					this->putpixel((diff * magnification_) + offX + j * magnification_ + l, offY + i * magnification_ + k , m.at<uint32_t>(i, j));
 					if(l == (off_t)magnification_ - 1)
 						this->putpixel((diff * magnification_) + offX + j * magnification_ + l, offY + i * magnification_ + k , 0);
 					if(k == (off_t)magnification_ - 1)

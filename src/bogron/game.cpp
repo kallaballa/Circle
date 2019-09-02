@@ -15,6 +15,13 @@ Game::Game(size_t width, size_t height) : width_(width), height_(height), player
 Game::~Game() {
 }
 
+void Game::startMusic() {
+	snd_.playMusic();
+}
+
+void Game::playFx(size_t index) {
+	snd_.play(index);
+}
 void Game::lock() {
 	gridMtx_.lock();
 }
@@ -34,26 +41,21 @@ void Game::checkPlayer(Player& p) {
 		break;
 	case Object::BOMB_:
 		cell = Object::BLANK_;
-		p.hasNuke_ = false;
-		p.hasBomb_ = true;
-		p.hasShield_ = false;
+		p.hasNuke_ = 0;
+		++p.hasBomb_;
+		p.hasShield_ = 0;
 		break;
 	case Object::NUKE_:
 		cell = Object::BLANK_;
-		p.hasNuke_ = true;
-		p.hasBomb_ = false;
-		p.hasShield_ = false;
+		++p.hasNuke_;
+		p.hasBomb_ = 0;
+		p.hasShield_ = 0;
 		break;
 	case Object::SHIELD_:
 		cell = Object::BLANK_;
-		p.hasNuke_ = false;
-		p.hasBomb_ = false;
-		p.hasShield_ = true;
-		break;
-	case Object::BLAST_:
-		snd_.play(Effects::Index::EXPLOSION_);
-		cell = Object::BLANK_;
-		p.kill();
+		p.hasNuke_ = 0;
+		p.hasBomb_ = 0;
+		++p.hasShield_;
 		break;
 	default:
 		break;
@@ -81,27 +83,54 @@ void Game::explode(Player& pActive, Player& pPassive) {
 	if(pActive.hasBomb_){
 		snd_.play(Effects::Index::BLAST_);
 
-		Renderer::getInstance().addAnimation(new VideoAnimation("anim/bomb.gif", pActive.pos_.first, pActive.pos_.second, false));
+		if (pActive.hasBomb_ > 1) {
+			Renderer::getInstance().addAnimation(
+					new VideoAnimation("anim/bomb2.gif", pActive.pos_.first,
+							pActive.pos_.second, false));
 
-		for(size_t x = 0; x < grid_.size(); ++x) {
-			auto& column = grid_[x];
+			for (off_t x = 0; x < grid_.size(); ++x) {
+				auto& row = grid_[x];
 
-			if(x == pActive.pos_.second) {
-				for(size_t y = 0; y < column.size(); ++y) {
-					auto& cell = column[y];
-					if(pPassive.pos_.first == y && pPassive.pos_.second == x) {
+				if ((x == pActive.pos_.second) || (x == pActive.pos_.second -1) || (x == pActive.pos_.second + 1)) {
+					for (off_t y = 0; y < row.size(); ++y) {
+						auto& cell = row[y];
+						if (pPassive.pos_.first == y && pPassive.pos_.second == x) {
+							pPassive.kill();
+							snd_.play(Effects::Index::EXPLOSION_);
+							cell = Object::BLAST_;
+						}
+					}
+				} else {
+					if (pPassive.pos_.first == pActive.pos_.first) {
+						pPassive.kill();
+						snd_.play(Effects::Index::EXPLOSION_);
+						row[pActive.pos_.first] = Object::BLAST_;
+					}
+				}
+			}
+		} else {
+			Renderer::getInstance().addAnimation(
+					new VideoAnimation("anim/bomb.gif", pActive.pos_.first,
+							pActive.pos_.second, false));
+
+
+			for (size_t x = 0; x < grid_.size(); ++x) {
+				auto& row = grid_[x];
+
+				if (x == pActive.pos_.second) {
+					for (size_t y = 0; y < row.size(); ++y) {
+						auto& cell = row[y];
+						if (pPassive.pos_.first == y && pPassive.pos_.second == x) {
+							pPassive.kill();
+							snd_.play(Effects::Index::EXPLOSION_);
+						}
+					}
+				} else {
+					if (pPassive.pos_.first == pActive.pos_.first) {
 						pPassive.kill();
 						snd_.play(Effects::Index::EXPLOSION_);
 					}
-
-					cell = Object::BLAST_;
 				}
-			} else {
-				if(pPassive.pos_.first == pActive.pos_.first) {
-					pPassive.kill();
-					snd_.play(Effects::Index::EXPLOSION_);
-				}
-				column[pActive.pos_.first] = Object::BLAST_;
 			}
 		}
 	} else if(pActive.hasNuke_) {
@@ -125,7 +154,6 @@ void Game::explode(Player& pActive, Player& pPassive) {
 					snd_.play(Effects::Index::EXPLOSION_);
 					pPassive.kill();
 				}
-				column[y] = Object::BLAST_;
 			}
 		}
 	}
@@ -193,5 +221,6 @@ void Game::reset() {
 	}
 	player1_.reset();
 	player2_.reset();
+	snd_.pauseMusic();
 	Renderer::getInstance().clearAnimations();
 }

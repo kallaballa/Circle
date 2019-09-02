@@ -15,22 +15,26 @@ using namespace std::chrono;
 
 class Player {
 private:
-	size_t lifes_;
+	off_t lifes_;
 	std::pair<off_t, off_t> initial_pos_;
 public:
 	std::pair<off_t, off_t> pos_;
 	milliseconds lastMove_;
-	bool hasBomb_ = false;
-	bool hasNuke_ = false;
-	bool hasShield_ = false;
+	size_t hasBomb_ = 0;
+	size_t hasNuke_ = 0;
+	size_t hasShield_ = 0;
 	bool isExploding = false;
 
 	Player(off64_t x, off64_t y, size_t lifes) : initial_pos_(x,y), pos_(x,y), lifes_(lifes) {
 	}
 
 	bool kill() {
+		if(hasShield_) {
+			hasShield_=false;
+			return lifes_ <= 0;
+		}
 		isExploding = true;
-		return (--lifes_ <= 0);
+		return --lifes_ <= 0;
 	}
 
 	bool isDead() const {
@@ -72,6 +76,8 @@ private:
 public:
 	Game(size_t width, size_t height);
 	virtual ~Game();
+	void startMusic();
+	void playFx(size_t index);
 	void checkPlayer(Player& pos);
 	void lock();
 	void unlock();

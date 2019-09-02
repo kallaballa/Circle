@@ -42,6 +42,34 @@ void blend(const cv::Mat& src1, const cv::Mat& src2, const double alpha,
 
 
 
+void intro(Canvas* canvas, Game& game) {
+	BitmapFont f;
+	cv::Mat* introFrame = new cv::Mat(HEIGHT, WIDTH, CV_8UC4, 0.0);
+	HSLColor hsl(0,0,0);
+	game.playFx(2);
+	for(size_t i = 0; i < 40; ++i) {
+			hsl.l_ = i * 2 + 20;
+			f.drawtext(*introFrame,0, (WIDTH / 2) - (f.calcWidth("LET") / 2), "LET", RGBColor(hsl));
+			canvas->draw(*introFrame, 0,0);
+			usleep(16667);
+		}
+		(*introFrame) *= 0;
+		for(size_t i = 0; i < 40; ++i) {
+			hsl.l_ = i * 2 + 20;
+			f.drawtext(*introFrame,0,(WIDTH / 2) - (f.calcWidth("THE BATTLE") / 2),"THE BATTLE", RGBColor(hsl));
+			canvas->draw(*introFrame, 0,0);
+			usleep(16667);
+		}
+		(*introFrame) *= 0;
+
+		for(size_t i = 0; i < 40; ++i) {
+			hsl.l_ = i * 2 + 20;
+			f.drawtext(*introFrame,0,(WIDTH / 2) - (f.calcWidth("BEGIN") / 2),"BEGIN", RGBColor(hsl));
+			canvas->draw(*introFrame, 0,0);
+			usleep(16667);
+		}
+}
+
 int main(int argc, char** argv) {
 	if (argc != 1) {
 		std::cerr << "Usage: bogron" << std::endl;
@@ -52,47 +80,23 @@ int main(int argc, char** argv) {
 	signal(SIGINT, FINISH);
 
 	Canvas* canvas = new Canvas(WIDTH, HEIGHT, MAGNIFICATION, false);
-	BitmapFont f;
-	cv::Mat* introFrame = new cv::Mat(HEIGHT, WIDTH, CV_8UC4, 0.0);
-	HSLColor hsl(0,0,0);
-
-	for(size_t i = 0; i < 50; ++i) {
-		hsl.l_ = i * 2;
-		f.drawtext(*introFrame,0, (WIDTH / 2) - (f.calcWidth("LET") / 2), "LET", RGBColor(hsl));
-		canvas->draw(*introFrame, 0,0);
-		usleep(16667);
-	}
-	(*introFrame) *= 0;
-	for(size_t i = 0; i < 50; ++i) {
-		hsl.l_ = i * 2;
-		f.drawtext(*introFrame,0,(WIDTH / 2) - (f.calcWidth("THE BATTLE") / 2),"THE BATTLE", RGBColor(hsl));
-		canvas->draw(*introFrame, 0,0);
-		usleep(16667);
-	}
-	(*introFrame) *= 0;
-
-	for(size_t i = 0; i < 50; ++i) {
-		hsl.l_ = i * 2;
-		f.drawtext(*introFrame,0,(WIDTH / 2) - (f.calcWidth("BEGIN") / 2),"BEGIN", RGBColor(hsl));
-		canvas->draw(*introFrame, 0,0);
-		usleep(16667);
-	}
-
 	Renderer::init(WIDTH, HEIGHT);
 	Renderer& r = Renderer::getInstance();
-
 	Game game(WIDTH / 1.3, HEIGHT);
+
 	MidiWiimote midi(0);
 
 	std::thread canvasThread([&]() {
 		cv::Mat* last = new cv::Mat(HEIGHT, WIDTH, CV_8UC4, 0.0);
 		cv::Mat* result = new cv::Mat(HEIGHT, WIDTH, CV_8UC4, 0.0);
 		bool first = true;
+
 		while (!DONE) {
 			game.lock();
-			if (!first) {
+			if(!first && !game.isOver()) {
 				blend(*r.getFrameBuffer(), *last, 0.3, *result);
 			} else {
+				(*last) *= 0;
 				r.getFrameBuffer()->copyTo(*result);
 				first = false;
 			}
@@ -104,8 +108,14 @@ int main(int argc, char** argv) {
 		}
 	});
 
+
 	while (!DONE) {
+		game.lock();
 		game.reset();
+		r.clear();
+		intro(canvas, game);
+		game.startMusic();
+		game.unlock();
 		std::thread gameThread([&]() {
 			while(!DONE) {
 				game.lock();
@@ -171,9 +181,6 @@ int main(int argc, char** argv) {
 					if(ev.btn_left_.press_) {
 						game.move1(Game::Direction::DOWN);
 					}
-					if(ev.btn_left_.press_) {
-						game.move1(Game::Direction::DOWN);
-					}
 					if(ev.btn_right_.press_) {
 						game.move1(Game::Direction::UP);
 					}
@@ -195,9 +202,6 @@ int main(int argc, char** argv) {
 					if(ev.btn_left_.press_) {
 						game.move2(Game::Direction::DOWN);
 					}
-					if(ev.btn_left_.press_) {
-						game.move2(Game::Direction::DOWN);
-					}
 					if(ev.btn_right_.press_) {
 						game.move2(Game::Direction::UP);
 					}
@@ -211,6 +215,7 @@ int main(int argc, char** argv) {
 				}
 				game.unlock();
 				std::this_thread::yield();
+				usleep(40000);
 			}
 		});
 

@@ -16,6 +16,8 @@ public:
   Canvas(size_t width, size_t height, size_t magnification, bool offscreen = false);
   virtual ~Canvas() {};
   void fillRectangle(Sint16 x, Sint16 y, Sint16 w, Sint16 h, Uint8 r, Uint8 g, Uint8 b, Uint8 a);
+  void fillCircle(Sint16 x, Sint16 y, Sint16 r, Uint16 red, Uint16 green, Uint16 blue);
+
   void update();
   void save(const string& filename);
   SDL_Surface* getSurface() {

@@ -23,7 +23,6 @@ public:
 		if (music_ == NULL) {
 			throw new std::exception();
 		}
-		Mix_PlayMusic( music_, -1 );
 	}
 
 	~Sound() {
@@ -33,6 +32,14 @@ public:
 
 		Mix_CloseAudio();
 
+	}
+
+	void playMusic() {
+		Mix_PlayMusic( music_, -1 );
+	}
+
+	void pauseMusic() {
+		Mix_PauseMusic();
 	}
 
 	//Loads the wav file and returns it's index
@@ -46,7 +53,7 @@ public:
 
 	void play(size_t idx) {
 		if ( Mix_PlayChannel( -1, chunks_[idx], 0 ) == -1) {
-			throw std::exception();
+			//throw std::exception();
 		}
 	}
 };

@@ -40,6 +40,10 @@ Renderer::~Renderer() {
 	delete frameBuffer_;
 }
 
+void Renderer::clear() {
+	(*frameBuffer_) *= 0;
+}
+
 void Renderer::renderAnimations(const off_t& off) {
 	if(animations_.empty())
 		return;
@@ -108,7 +112,7 @@ void Renderer::renderPlayer(Player& p, const RGBColor& color, const size_t& off)
 	layer.at<uint8_t>(p.pos_.second, (off + p.pos_.first) * 4 + 2) = color.r_;
 	layer.at<uint8_t>(p.pos_.second, (off + p.pos_.first) * 4 + 3) = 0xFF;
 
-	if(p.hasBomb_ || p.hasNuke_) {
+	if(p.hasBomb_ || p.hasNuke_ || p.hasShield_) {
 		RGBColor haloColor(0,0,0);
 		if(p.hasBomb_)
 			haloColor = Palette::BOMB_;

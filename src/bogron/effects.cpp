@@ -2,5 +2,6 @@
 
 std::vector<std::string> Effects::filenames = {
 		"fx/swing.wav",
-		"fx/explosion.wav"
+		"fx/explosion.wav",
+		"fx/intro.wav"
 };

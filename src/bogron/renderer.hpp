@@ -18,6 +18,7 @@ class Renderer {
 
 public:
 	virtual ~Renderer();
+	void clear();
 	void renderAnimations(const off_t& off);
 	void renderPlayer(Player& p, const RGBColor& color, const size_t& off);
 	void renderGame(Game::grid_t& grid, Player& p1, Player& p2);

@@ -13,8 +13,8 @@ public:
 	static float MINE_;
 	static float BOMB_;
 	static float NUKE_;
-	static float BLANK_;
 	static float SHIELD_;
+	static float BLANK_;
 
 	Spawn(): rd_(), mt_(rd_()), dist_(0, MINE_ + BOMB_ + SHIELD_ + NUKE_ + BLANK_) {
 	}
