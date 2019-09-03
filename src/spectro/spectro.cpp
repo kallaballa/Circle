@@ -131,7 +131,7 @@ int main(int argc, char** argv) {
 			frameBuffer->copyTo(*result);
 			first = false;
 		}
-		canvas->draw(*result, MAGNIFICATION);
+		canvas->draw(*result);
 		result->copyTo(*last);
 
 		std::this_thread::yield();

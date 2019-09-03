@@ -50,22 +50,22 @@ void intro(Canvas* canvas, Game& game) {
 	for(size_t i = 0; i < 40; ++i) {
 			hsl.l_ = i * 2 + 20;
 			f.drawtext(*introFrame,0, (WIDTH / 2) - (f.calcWidth("LET") / 2), "LET", RGBColor(hsl));
-			canvas->draw(*introFrame, 0,0);
+			canvas->draw(*introFrame);
 			usleep(16667);
 		}
 		(*introFrame) *= 0;
-		for(size_t i = 0; i < 40; ++i) {
-			hsl.l_ = i * 2 + 20;
+		for(size_t i = 0; i < 50; ++i) {
+			hsl.l_ = i * 2;
 			f.drawtext(*introFrame,0,(WIDTH / 2) - (f.calcWidth("THE BATTLE") / 2),"THE BATTLE", RGBColor(hsl));
-			canvas->draw(*introFrame, 0,0);
+			canvas->draw(*introFrame);
 			usleep(16667);
 		}
 		(*introFrame) *= 0;
 
-		for(size_t i = 0; i < 40; ++i) {
-			hsl.l_ = i * 2 + 20;
+		for(size_t i = 0; i < 50; ++i) {
+			hsl.l_ = i * 2;
 			f.drawtext(*introFrame,0,(WIDTH / 2) - (f.calcWidth("BEGIN") / 2),"BEGIN", RGBColor(hsl));
-			canvas->draw(*introFrame, 0,0);
+			canvas->draw(*introFrame);
 			usleep(16667);
 		}
 }
@@ -167,6 +167,14 @@ int main(int argc, char** argv) {
 						game.unlock();
 						continue;
 					}
+				}
+
+				if(ev.btn_minus_.press_) {
+					game.pauseMusic();
+				}
+
+				if(ev.btn_plus_.press_) {
+					game.startMusic();
 				}
 
 				if(ev.ctrlNr_ == 0) {

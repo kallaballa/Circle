@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
 		cv::Mat tile = scaled(cv::Rect(0,0, scaledW, scaledH));
 		for(size_t i = 0; i < floor(WIDTH / scaledW); ++i)
 			tile.copyTo(scaled(cv::Rect(scaledW * i,0,scaledW, scaledH)));
-		canvas->draw(scaled, MAGNIFICATION);
+		canvas->draw(scaled);
 
 		usleep(1000000 / fps);
 	}

@@ -33,9 +33,9 @@ void Canvas::fillRectangle(Sint16 x, Sint16 y, Sint16 w, Sint16 h, Uint8 r, Uint
 }
 
 
-void Canvas::fillCircle(Sint16 x, Sint16 y, Sint16 r, Uint16 red, Uint16 green, Uint16 blue) {
-	RGBColor rgb(red, green, blue);
-  filledCircleColor(screen_,x, y, r, rgb.val());
+void Canvas::fillCircle(Sint16 x, Sint16 y, Sint16 r, Uint32 color) {
+	RGBColor rgb(color);
+  filledCircleRGBA(screen_,x, y, r, rgb.r_, rgb.g_, rgb.b_, 255);
 }
 
 void Canvas::update() {
@@ -78,7 +78,7 @@ void Canvas::putpixel(int x, int y, Uint32 pixel) {
 	}
 }
 
-void Canvas::draw(cv::Mat& m, const size_t& offX, const size_t& offY) {
+void Canvas::draw(cv::Mat& m) {
 	this->fillRectangle(0, 0, this->width_ * magnification_, this->height_ * magnification_, 0, 0,
 			0, 255);
 
@@ -91,16 +91,18 @@ void Canvas::draw(cv::Mat& m, const size_t& offX, const size_t& offY) {
 		for (off_t j = 0; j < m.cols; j++) {
 			if (j >= surface->h)
 				continue;
-			for (off_t k = 0; k < (off_t)magnification_; k++) {
-				for (off_t l = 0; l < (off_t)magnification_; l++) {
-					this->putpixel((diff * magnification_) + offX + j * magnification_ + l, offY + i * magnification_ + k , m.at<uint32_t>(i, j));
-					if(l == (off_t)magnification_ - 1)
-						this->putpixel((diff * magnification_) + offX + j * magnification_ + l, offY + i * magnification_ + k , 0);
-					if(k == (off_t)magnification_ - 1)
-						this->putpixel((diff * magnification_) + offX + j * magnification_ + l, offY + i * magnification_ + k , 0);
+				fillCircle((j * magnification_) + magnification_ / 2, (i * magnification_) + magnification_ / 2, magnification_/4, m.at<uint32_t>(i, j));
 
-				}
-			}
+//			for (off_t k = 0; k < (off_t)magnification_; k++) {
+//				for (off_t l = 0; l < (off_t)magnification_; l++) {
+//					this->putpixel((diff * magnification_) + offX + j * magnification_ + l, offY + i * magnification_ + k , m.at<int32_t>(i, j));
+//					if(l == (off_t)magnification_ - 1)
+//						this->putpixel((diff * magnification_) + offX + j * magnification_ + l, offY + i * magnification_ + k , 0);
+//					if(k == (off_t)magnification_ - 1)
+//						this->putpixel((diff * magnification_) + offX + j * magnification_ + l, offY + i * magnification_ + k , 0);
+//
+//				}
+//			}
 		}
 	}
 

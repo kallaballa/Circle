@@ -19,6 +19,10 @@ void Game::startMusic() {
 	snd_.playMusic();
 }
 
+void Game::pauseMusic() {
+	snd_.pauseMusic();
+}
+
 void Game::playFx(size_t index) {
 	snd_.play(index);
 }
@@ -83,32 +87,32 @@ void Game::explode(Player& pActive, Player& pPassive) {
 	if(pActive.hasBomb_){
 		snd_.play(Effects::Index::BLAST_);
 
-		if (pActive.hasBomb_ > 1) {
-			Renderer::getInstance().addAnimation(
-					new VideoAnimation("anim/bomb2.gif", pActive.pos_.first,
-							pActive.pos_.second, false));
-
-			for (off_t x = 0; x < grid_.size(); ++x) {
-				auto& row = grid_[x];
-
-				if ((x == pActive.pos_.second) || (x == pActive.pos_.second -1) || (x == pActive.pos_.second + 1)) {
-					for (off_t y = 0; y < row.size(); ++y) {
-						auto& cell = row[y];
-						if (pPassive.pos_.first == y && pPassive.pos_.second == x) {
-							pPassive.kill();
-							snd_.play(Effects::Index::EXPLOSION_);
-							cell = Object::BLAST_;
-						}
-					}
-				} else {
-					if (pPassive.pos_.first == pActive.pos_.first) {
-						pPassive.kill();
-						snd_.play(Effects::Index::EXPLOSION_);
-						row[pActive.pos_.first] = Object::BLAST_;
-					}
-				}
-			}
-		} else {
+//		if (pActive.hasBomb_ > 1) {
+//			Renderer::getInstance().addAnimation(
+//					new VideoAnimation("anim/bomb2.gif", pActive.pos_.first,
+//							pActive.pos_.second, false));
+//
+//			for (off_t x = 0; x < grid_.size(); ++x) {
+//				auto& row = grid_[x];
+//
+//				if ((x == pActive.pos_.second) || (x == pActive.pos_.second -1) || (x == pActive.pos_.second + 1)) {
+//					for (off_t y = 0; y < row.size(); ++y) {
+//						auto& cell = row[y];
+//						if (pPassive.pos_.first == y && pPassive.pos_.second == x) {
+//							pPassive.kill();
+//							snd_.play(Effects::Index::EXPLOSION_);
+//							cell = Object::BLAST_;
+//						}
+//					}
+//				} else {
+//					if (pPassive.pos_.first == pActive.pos_.first) {
+//						pPassive.kill();
+//						snd_.play(Effects::Index::EXPLOSION_);
+//						row[pActive.pos_.first] = Object::BLAST_;
+//					}
+//				}
+//			}
+//		} else {
 			Renderer::getInstance().addAnimation(
 					new VideoAnimation("anim/bomb.gif", pActive.pos_.first,
 							pActive.pos_.second, false));
@@ -132,7 +136,7 @@ void Game::explode(Player& pActive, Player& pPassive) {
 					}
 				}
 			}
-		}
+//		}
 	} else if(pActive.hasNuke_) {
 		snd_.play(Effects::Index::BLAST_);
 

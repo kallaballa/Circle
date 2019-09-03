@@ -77,6 +77,7 @@ public:
 	Game(size_t width, size_t height);
 	virtual ~Game();
 	void startMusic();
+	void pauseMusic();
 	void playFx(size_t index);
 	void checkPlayer(Player& pos);
 	void lock();

@@ -12,6 +12,7 @@ struct Palette {
 	static RGBColor NUKE_;
 	static RGBColor BLANK_;
 	static RGBColor BLAST_;
+	static RGBColor TEXTBG_;
 };
 
 
