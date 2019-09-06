@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 	DONE = false;
 	signal(SIGINT, FINISH);
 
-	Canvas* canvas = new Canvas(WIDTH * MAGNIFICATION, HEIGHT * MAGNIFICATION, false);
+	Canvas* canvas = new Canvas(WIDTH, HEIGHT, MAGNIFICATION, false);
 
 	SDL_Event event;
 	bool first = true;

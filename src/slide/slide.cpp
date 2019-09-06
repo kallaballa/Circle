@@ -150,10 +150,10 @@ int main(int argc, char** argv) {
 		TEXTURES.push_back(texture);
 	}
 
-	Canvas* canvas = new Canvas(WIDTH * MAGNIFICATION, HEIGHT * MAGNIFICATION, false);
+	Canvas* canvas = new Canvas(WIDTH, HEIGHT, MAGNIFICATION, false);
 	MidiWiimote midi(0);
 	Sound snd;
-	snd.loadFx("swing.wav");
+	snd.loadFx("fx/swing.wav");
 	std::thread midiThread([&]() {
 		WMEvent ev;
 		while ( !DONE ) {
